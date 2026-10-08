@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "publicationBaselineManifestSha256": "13988697d1af4522076c1607886e29f0eb08af3a391eafe78ffa8540cd6c4931",
+  "changes": [
+    {
+      "path": "src/data/projects/burunfarki.ts",
+      "publishedSha256": "56dd03bad167b0fc7078b53dfe765975f9300b8500dc27cdd7521087824c876b",
+      "candidateSha256": "3918d8ea74b02d9ef512ab1138ae2a054965cdc1fb518b275b5cab9ec5803aba",
+      "reason": "Align the Burun Farki project contact on both YULALAB locales with the user-approved support@yulalab.com address. AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "package.json",
+      "publishedSha256": "69a42b8eb270dbbf561c71b747f0dbf12ddc11842f1d74704a2fc37c28fba809",
+      "candidateSha256": "6f86fc7a3298fc952b889bdac37ecf5ac08023efcc0fc33ae98b6d7d73506ee4",
+      "reason": "Pinned upstream braces recursion fix; preserve package identity and raw audit finding. Parent-reviewed exact tsx import patch a0fe490da8223803397ef70fda6deba74c463dda10b8e115d644f61db4298048, source tree62e8d3a3fe20a5cdb95be2294cebb1248c0fb286 (tsx-import-gate-qualification/approval.json SHA2567da9e1c35f2995ffb388aaf5e9fecc873866023c72c095e74b3e41c7c5953b9d): replace CLI launch with node --import tsx; validators, exporter --check, failure propagation and dependency declarations unchanged. Source acceptance only; prior guarded registry attempt FAILED, not runtime or publication acceptance.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "scripts/verify-public-registry.ts",
+      "publishedSha256": "45452855b847d118cd5107a344615a5a1ff376389e0949b59241c0e610612cea",
+      "candidateSha256": "2d597f00620ce1ad2d53df3527a1f237b38278b6197bce753eadea5d3a1aff7d",
+      "reason": "Use the gate Node executable and local tsx import loader for the same exporter --check; preserve cwd,stdio,validators and failure propagation. Parent-reviewed exact tsx import patch a0fe490da8223803397ef70fda6deba74c463dda10b8e115d644f61db4298048, source tree62e8d3a3fe20a5cdb95be2294cebb1248c0fb286 (tsx-import-gate-qualification/approval.json SHA2567da9e1c35f2995ffb388aaf5e9fecc873866023c72c095e74b3e41c7c5953b9d): replace CLI launch with node --import tsx; validators, exporter --check, failure propagation and dependency declarations unchanged. Source acceptance only; prior guarded registry attempt FAILED, not runtime or publication acceptance.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "README.md",
+      "publishedSha256": "ba4212bed0476cc6bf3cd30d23251f1211eabb931fb14c58eb0ea1d73420f0ea",
+      "candidateSha256": "fe339d43338c48cfbc0c46f9342d3e6e58a465a72e8524acbd987b5660792e71",
+      "reason": "Document existing Netlify publication history separately from candidate Node 26 builds and explicit supported Node 24 function runtime; preserve approval and provider-readback requirements.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/privacy/lifeos/page.tsx",
+      "publishedSha256": "d7812236da65af0b5766fde98b02e06e000cdb80ba606d4f08604591cc277324",
+      "candidateSha256": "f2539d0f10dd6d816fff2a2789630cf010a6f6f84cb154fcc22e5b3a82bce747",
+      "reason": "Link the LifeOS privacy policy to the dedicated account-deletion request page in both supported locales.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/sitemap.ts",
+      "publishedSha256": "bf1e30dd37f6a64c6afab5dac3b91f0f672a9dad941345d4474eadadb15b4a08",
+      "candidateSha256": "6534070180e56535d15147f6f4a2d1216345ccf3ce446b97fc1b69131a1b7146",
+      "reason": "Advertise the dedicated LifeOS account-deletion page for the Turkish and English site routes. AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/delete-account/lifeos/page.tsx",
+      "publishedSha256": null,
+      "candidateSha256": "2dcdab8d6dbbfe2c5eced610499db364777276f0c99827b113ab232a0f6c7149",
+      "reason": "Add a LifeOS-specific, bilingual, off-app account-and-data deletion request path with honest scope and retention information for Google Play; explain optional partial tracker and account-linked data deletion without closing the account.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "tests/data-request-delivery.test.ts",
+      "publishedSha256": "0035667fb6aee764020129c6809feab0327a1a6f3b6bc200b829cb62a10c2916",
+      "candidateSha256": "593db5d934b84de51b01671af55b891d2c22f78ff07d2dddb0daa84e3c7eba76",
+      "reason": "Keep the data-request delivery regression fixture inside its real 30-day queue window with a one-minute clock-skew margin; production behavior and 24-hour assertions remain unchanged.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "vitest.config.mts",
+      "publishedSha256": "e1278ceb589454a93a99f72218327123d48af001e6f904aa69b9febe6d255bdf",
+      "candidateSha256": "7915fa4d58c6212a75d4f4829d3c61e4b22ebb985b6f59d60e0528bb4b5adb16",
+      "reason": "Use jsdom browser storage in test workers when the host Node version exposes its own storage globals; preserve real DOM privacy assertions and support older Node versions without the flag.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "publishedSha256": "0214f3938ff0c89a3ae8cdaa211770e922672ab5d8394519bade0fe5bb90bc5a",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE",
+      "candidateSha256": "36621a1b63ca03af459f5d2b0b89dbd67ee583eef4af05d386af7356d1fe760a",
+      "reason": "Pinned upstream braces recursion fix; preserve package identity and raw audit finding."
+    },
+    {
+      "path": "netlify.toml",
+      "publishedSha256": "ad306e4e273440ccd8c81daf3919e39e829e4840e57be7b4f12bc151a1659ddd",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE",
+      "candidateSha256": "173d80a5a8a01ece03f172fe54290baaae234b4e0c74a6828eb4bd0be6a416a9",
+      "reason": "Select the current Node 26.9.0 build toolchain; Functions runtime is explicitly selected by the CLI process and checked separately in generated artifacts."
+    },
+    {
+      "path": "public/portfolio-registry.json",
+      "publishedSha256": "d89f1a2cd815e9416d8ee3d1147c8dc2f6e564d1d3f84d496c4334cde1fb11f6",
+      "candidateSha256": "97b6a33fa5a9d8d97eaa2e7ea850c8f847754cadeb7d5128c81d4dd733bffb12",
+      "reason": "Regenerate public JSON from the reviewed 2026-09-23 four-surface public readback source. Preserve all product claims, metrics, expired evidence and Motion records unchanged. Same-day inclusive expiry avoids exceeding the 24-hour proof window. This candidate artifact is not publication evidence.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/public-registry.ts",
+      "publishedSha256": "37b81cac7caddc5cf13d4a4d1e14edb7c204e2ceb55f28499a457c63524c1467",
+      "candidateSha256": "179405ac8b5adcdb38daf88b5dbb7ecdce8ae6704e0d1ccb330992bda10fb31c",
+      "reason": "Refresh only source and verifiedAt for Braavolabs web/iOS, Burun Farki web and LifeOS iOS from the 2026-09-23T02:41:37Z public readback. Keep expiry 2026-09-23: this inclusive Europe/Istanbul calendar date is shorter than a 24-hour proof window. Published versions remain Braavolabs 1.0.3 and LifeOS 1.6.0. No authenticated feature, metric, source-code claim, or candidate publication is newly accepted.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "deno.lock",
+      "publishedSha256": "b6e624268f9825b9b67e7bb0965ec88558248bd751a24a307a5b7f11288b3187",
+      "candidateSha256": "2b799c9101047f6c30eeabf9e98366632b2c3ab250569608af75afe44d03de3a",
+      "reason": "Keep the pinned Deno/Netlify edge dependency declaration aligned with the audited exact Next 15.5.24 package so the Linux Node 22 adapter build leaves tracked source bytes unchanged.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/projects/lifeos.ts",
+      "publishedSha256": "7a8f05f3da46ddbd7f5fdb6e484db31bd362c180d64f8b0a9374c07f453adea3",
+      "candidateSha256": "5e79eb843ebb984c01ba9acfb61d878989fc6e09e8310bacac474c1eb38b43a7",
+      "reason": "Stop presenting the old legal microsite as a dedicated LifeOS product website in SoftwareApplication structured data; preserve the verified App Store primary CTA and YULALAB legal routes.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/lib/analytics/events.ts",
+      "publishedSha256": "e14a590bacfb44a31b83a849f47f1a377ed6dd3568f73db78662f510568c9e4f",
+      "candidateSha256": "f5b007c451d191b08086591163213a808f4d66a24b0002385b079dcf698c4045",
+      "reason": "Remove the obsolete LifeOS microsite example from the outbound allowlist explanation; the source still reads project links until the registry owns all destinations.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/privacy/motion/page.tsx",
+      "publishedSha256": "c8e100e471f37fa98e1bc4166a1dec7fa371e9a8b318823af1a747a0f8cf5ed8",
+      "candidateSha256": "2a00201d880e1464ec7aa66a71660cfe9c310ddbd8fdcd04bed72e9fa1bbfe81",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy. Disclose retained provider IP/user-agent/platform diagnostics, approximate IP-derived location and salted bcrypt credentials for account/security operations; clarify provider logs and backups are not instantly erased with account deletion. Exact source and aggregate provider records reviewed; no GPS/device ID, advertising or production acceptance added.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/support/page.tsx",
+      "publishedSha256": "406c7a84b6061141671dc8ce0d2ba5497f5ae8b00b159ac92d27105bc279ea7e",
+      "candidateSha256": "7591f501560c1763c46bfda4ec5467facca35997377a974d723dfa6080c07251",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy. Candidate-only 2026-10-06 support feedback patch: remove unverified48h claim, encoded bilingual redacted mailto draft; no delivery/provider assertion. Parent independent review and runtime qualification pending.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/projects/gravita.ts",
+      "publishedSha256": "2e1337cac2f1db0357c33f3795beda8b0e90b83d1b14691bd8a5ae40d311dec6",
+      "candidateSha256": "efc301925623a77dc445af17f3562262057c07112fe4840bb5da449ff596f8f6",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/projects/lissom.ts",
+      "publishedSha256": "05b2eebb66f7c400a38de5d6ec4392b5376f0fa07a0581ce75e6963ed2707f01",
+      "candidateSha256": "6e020dd3291b142b9d06e0ba988c773d45b2e1a54be280f832ada630a8442280",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/projects/jablab.ts",
+      "publishedSha256": "d86767d708c73f681814f1a1217e71252cb4f27ce73e233debc93f9f0ae09c53",
+      "candidateSha256": "ee4e57d249ae067a724a68bedf85da9ef3e2bdae61e127f27b15040a8f0e4209",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/projects/ostinato.ts",
+      "publishedSha256": "e9cb2f9f50a664daea5b45e2921e9b1d1cc3d562cbf812801eb381f4fe369a6a",
+      "candidateSha256": "964a9bce44e8428ae5ec002e85f69dd45fe91d2fc7a8b2a6a25cebe23a8af78d",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/data/projects/choreia.ts",
+      "publishedSha256": "0ac4df1f8ee2e5c7d4174cbc0c04c93a2c572eadf3dbd34c4b0d137a1b7dde3e",
+      "candidateSha256": "65747ff7af85ae57c87562dd21410d1bb1b8b54dce33accb0be0f52937bfeb55",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "messages/tr.json",
+      "publishedSha256": "79e66db7533af16c84ceff652563524b1cf0542ab28e394e6a147fb98bed93de",
+      "candidateSha256": "9f79fa235b0af3765a85e63c2b177862584ae4159616778ff4dda55607f92af6",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy. AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion. Candidate-only 2026-10-06 card freshness overlay; independent review and runtime/build qualification pending.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "messages/en.json",
+      "publishedSha256": "e0c73fe7d41853e2cece3dcf4681c7b9836c5562f4c8d96575bf66573f0e784c",
+      "candidateSha256": "a9c53fa708e807e91699ad3a3a4780caade2d1447b0378da69cbb9840eaeccf0",
+      "reason": "Align the five-app Motion first-release TR/EN scope with disabled paid sales and camera coaching, course self-report separated from camera skill scores, and Ostinato's optional user-started RAM-only approximate single-note guitar observation. Preserve account and deletion scope, layouts and store availability; this candidate does not establish publication or validated sensor accuracy. AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion. Candidate-only 2026-10-06 card freshness overlay; independent review and runtime/build qualification pending.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/layout/Header.tsx",
+      "publishedSha256": "ae9f476dd5984e988fc9c545ef325cd51412ecae405d4617e310be247d02ea90",
+      "candidateSha256": "da6e9ee79a6d06ae98f9ddee0e47e204a1b5a0847b20afaa4e73f635f88cc94b",
+      "reason": "Use a native mobile modal for browser focus containment and background inertness; close on Escape, route changes and the desktop breakpoint. Preserve the closed Studio surface. AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/layout/LocaleSwitcher.tsx",
+      "publishedSha256": "d27cbd2dc1a9b9cf0b37bff5ae2e8a2afe585bca6b5c487ee9ea19488537e836",
+      "candidateSha256": "8f3d8ceb32929cf4433fc5cb36d87f5c2e34ab15d88b627f61333125086b60a2",
+      "reason": "Preserve normal page hash sections, including Motion account deletion, during language changes; continue omitting query values.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/middleware.ts",
+      "publishedSha256": "cd5e600b3b22ae655bdec97a23d9d4ebf188ed6e4d87895607edfaa4ceed7766",
+      "candidateSha256": "5cd418d79b5360a06f6ff20f7a97e5bbc520c49ac995499ba710c2d3665f4e9d",
+      "reason": "Resolve fixed Links aliases before Netlify locale rewriting; incoming query values cannot select or contaminate the external destination. EN uses the supported fixed lang=en hub query.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "next.config.mjs",
+      "publishedSha256": "c86affd49cc3f2242c94ecdbfabaae7eb7f05f58e2f609dc026fc54d5d0df823",
+      "candidateSha256": "f4a6efe21fd13c9c0e0413650ca3af208e3d346c3fe3fe842e863c528fa6eaca",
+      "reason": "Remove duplicate Links config redirect so middleware owns a fixed, query-free destination consistently across Next and Netlify routing order.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "tailwind.config.ts",
+      "publishedSha256": "4e514350d6c14ebe9e458b0fc1b6d8fb71648bab5d4685c554d75354317f9568",
+      "candidateSha256": "17ac99cae18950a38e531b87e44adc7b56a03eb9910278fb611ff49570edda39",
+      "reason": "Load the same typography plugin through ESM import; Node26 dev TS config loading otherwise throws require-is-not-defined.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/contact/page.tsx",
+      "publishedSha256": "e2077bb2c030d76874d99056bfcc15ba427b2256cbbbbf80cb219a7983ee2272",
+      "candidateSha256": "9841e5ec78298220bbeed96932108539cfd83102f400f03c93425c844ac25f22",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/page.tsx",
+      "publishedSha256": "d2e11c43ff687482b82fc15e16875913aa7028dd6eb59c7a3377a4d1ff73d39a",
+      "candidateSha256": "6440c2b8dd478475e80af6bdebbd8f6caceca7db84ccef501b67d2ffae66fe08",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/contact/MailCard.tsx",
+      "publishedSha256": "789345fd51a5c62ff614742cbe09a6239516125c5761e8f23fd5048be04fe6ff",
+      "candidateSha256": "df65dbcc8627ffa409cd8cfc7905c71550e5009df488fc89144ff0f69f0a55c1",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/experience/ExperienceOverlay.tsx",
+      "publishedSha256": "289a917c767fb3775435bddfea463dddb27ab9dbb2736c2b51db07b638eb233e",
+      "candidateSha256": "2b13e2b97ae002c3d5c23bb93de1a66bac18cd852d9a1a01df1585e0350c5562",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/experience/StaticExperience.tsx",
+      "publishedSha256": "b4299365c24e84819e0040aabc13c43888097dc1eade8362024c0fdc17ff7329",
+      "candidateSha256": "d3833b45467ce391af1636ad45a512c7634647097dfb3b11d0c6b53288c6805a",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/experience/types.ts",
+      "publishedSha256": "6ea44db9238a40730a02dfb292b2e520648f50725ec4c9e4ebbdeb5c959d32da",
+      "candidateSha256": "ea4952aa7ab49e6cc8f618c9a579fd4cc34c174d2014e2d6ab071ddd8e683f08",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/layout/Footer.tsx",
+      "publishedSha256": "bbe7fd97fda7ca6964c28f5cb7af34f6deebc00959ba4a142607a255c878359b",
+      "candidateSha256": "2fc1c816ff6768c6922486eaa76464e765e6668d646fc3c0f2d5627cafdef8fc",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/[locale]/consulting/page.tsx",
+      "publishedSha256": null,
+      "candidateSha256": "334290ba09e0e1257cb4d5fcf952b95d4107adc0b9438e6d028d4e24ac66cefd",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/common/StatusPill.tsx",
+      "publishedSha256": "b7b2a85464449f810c9ed8906e66a8df4ba9c7f4d709e208cbf1827bbf683656",
+      "candidateSha256": "aeaaaf9316fd0c7354e52d1c2e38e78be9b495949faeded3c6e450f11d5395e4",
+      "reason": "Candidate-only 2026-10-06 card freshness overlay; independent review and runtime/build qualification pending. Preserve registry dates, lifecycle partitions, historical publication evidence and existing assertions.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/components/landing/ProjectCard.tsx",
+      "publishedSha256": "17f679d2471756b3fe893d48a03b701aedbd1ce2a023ca8ce09701f68534e39a",
+      "candidateSha256": "096be83e02cf417af836688a1ce26110db43780846da145a508eff69b8a389f5",
+      "reason": "Candidate-only 2026-10-06 card freshness overlay; independent review and runtime/build qualification pending. Preserve registry dates, lifecycle partitions, historical publication evidence and existing assertions.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "e2e/products-index.spec.ts",
+      "publishedSha256": "0ac5c1340c84862f8ddbaa27062c1b5a49394264085392676e8600750738747e",
+      "candidateSha256": "e8e82ecee68eba5ea99b79ce48788183654dd4833232caba51aa2dea9322e109",
+      "reason": "Candidate-only 2026-10-06 card freshness overlay; independent review and runtime/build qualification pending. Preserve registry dates, lifecycle partitions, historical publication evidence and existing assertions.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "tests/status-pill.test.tsx",
+      "publishedSha256": null,
+      "candidateSha256": "f8c8b6bef8c9de494427ed1ee3fc9aa60b3746b0e818f327319ee2289aebb6a5",
+      "reason": "Candidate-only 2026-10-06 card freshness overlay; independent review and runtime/build qualification pending. Preserve registry dates, lifecycle partitions, historical publication evidence and existing assertions.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "tests/support-feedback.test.tsx",
+      "publishedSha256": null,
+      "candidateSha256": "a5319babc9c69b7ff1b736602cb5ac8f576f934f1751b08be416b7540136738a",
+      "reason": "Candidate-only bilingual support draft rendering, diagnostics/redaction and no-form/no-response-time regression assertions; parent review/runtime qualification pending.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    }
+  ]
+}

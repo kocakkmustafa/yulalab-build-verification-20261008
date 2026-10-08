@@ -1,0 +1,17 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "26.9.0"
+  PNPM_VERSION = "10.33.0"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[headers]]
+  for = "/portfolio-registry.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://links.yulalab.com"
+    Access-Control-Allow-Methods = "GET"
+    Cache-Control = "public, max-age=300, must-revalidate"

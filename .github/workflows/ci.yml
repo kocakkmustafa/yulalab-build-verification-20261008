@@ -1,0 +1,181 @@
+name: Candidate verification (manual only)
+'on':
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-test:
+    name: lint, typecheck, unit, Netlify build, localhost e2e, audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      YULA_E2E_PORT: '4189'
+      LINKS_COMMIT: 43524f61e28d9bbd73be372ca8bc30feedddb8ad
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: yula_attribution_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout exact web revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact candidate tree with only documented workflow replacement
+        run: |
+          python3 - <<'PY_TREE'
+          import subprocess, hashlib
+          tree = {}
+          rows = subprocess.check_output(['git', 'ls-tree', '-r', '-z', 'HEAD']).split(b'\0')
+          for row in rows:
+              if not row:
+                  continue
+              meta, name = row.split(b'\t'); mode, kind, digest = meta.decode().split()
+              name = name.decode()
+              if name == '.github/workflows/ci.yml':
+                  digest = '7eb8852fcbd50b94c4bdd60b6f5ae04691ecb368'
+              node = tree
+              for part in name.split('/')[:-1]:
+                  node = node.setdefault(part, {})
+              node[name.split('/')[-1]] = (mode, digest)
+          def tree_hash(node):
+              data = b''
+              for name, value in sorted(node.items(), key=lambda p: p[0] + ('/' if isinstance(p[1], dict) else '')):
+                  mode, digest = ('40000', tree_hash(value)) if isinstance(value, dict) else value
+                  data += mode.encode() + b' ' + name.encode() + b'\0' + bytes.fromhex(digest)
+              return hashlib.sha1(b'tree ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+          actual = tree_hash(tree)
+          if actual != '7399ca9049789aae4ef2ae28099ce79241271329':
+              raise SystemExit('Candidate tree mismatch: ' + actual)
+          print('Exact candidate tree verified:', actual)
+          PY_TREE
+      - name: Checkout immutable Links sibling
+        run: |
+          set -euo pipefail
+          [[ "$LINKS_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          git init ../links
+          git -C ../links remote add origin https://github.com/kocakkmustafa/yulalab-links.git
+          git -C ../links fetch --no-tags --depth 1 origin "$LINKS_COMMIT"
+          git -C ../links checkout --detach FETCH_HEAD
+          test "$(git -C ../links rev-parse HEAD)" = "$LINKS_COMMIT"
+      - name: Set up pinned pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+        with:
+          version: 10.33.0
+      - name: Set up pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 26.9.0
+      - name: Record runner and source identity
+        run: |
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+          git -C ../links rev-parse HEAD
+          node --version
+          pnpm --version
+          python3 --version
+          uname -a
+      - name: Verify web publication baseline and reviewed delta; unchanged Links
+        run: |
+          python3 .github/ci/verify-published-source.py
+          python3 ../links/.github/ci/verify-published-source.py
+      - name: Validate Links hosting and exact static package
+        run: |
+          (cd ../links && python3 .github/ci/static-contract.py)
+          python3 ../links/.github/ci/netlify-contract.py "$RUNNER_TEMP/links-static" > "$RUNNER_TEMP/links-static-manifest.json"
+      - name: Netlify artifact contract regression fixtures with Python optimization
+        run: python3 -B -O .github/ci/test-netlify-contract.py
+      - name: Install frozen product dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install locked offline build CLI
+        run: npm ci --prefix .github/ci/netlify --no-audit --no-fund
+      - name: Verify locked tooling graph and blobs peer consumers
+        run: |
+          npm ls --all --prefix .github/ci/netlify
+          node .github/ci/verify-netlify-blobs-peers.cjs
+      - name: Verify installed braces security patch and glob behavior
+        run: node .github/ci/verify-braces-patch.cjs
+      - name: Verify overridden CI dependency compatibility
+        run: node .github/ci/verify-tool-compatibility.mjs
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: All existing unit tests with disposable PostgreSQL 17
+        run: pnpm test
+        env:
+          USER: postgres
+          ATTRIBUTION_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/yula_attribution_test
+      - name: Public content and TR EN parity
+        run: pnpm verify:claims:local
+      - name: Public registry structure and generated file
+        run: pnpm verify:claims
+      - name: URL well-formedness without live requests
+        run: pnpm verify:links --no-live
+      - name: Build Next and Netlify artifacts offline
+        run: pnpm build:netlify
+      - name: Product render mode from built output
+        run: pnpm verify:render-mode
+      - name: Verify Netlify config and generated artifacts
+        run: python3 .github/ci/netlify-contract.py > "$RUNNER_TEMP/netlify-artifacts.json"
+      - name: Install Chromium for localhost E2E
+        run: pnpm exec playwright install --with-deps chromium
+      - name: All existing localhost E2E tests
+        run: pnpm exec playwright test --workers=1 --retries=0 --reporter=list,json --trace=retain-on-failure
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: playwright-report/results.json
+      - name: Dependency audit (production, high+)
+        run: pnpm audit --prod --audit-level high
+      - name: Dependency audit (including build and deployment tools, high+)
+        run: pnpm audit --audit-level high
+      - name: Dependency audit (locked Netlify CLI, high+)
+        run: npm audit --prefix .github/ci/netlify --audit-level high
+      - name: Verify candidate source bytes after build and tests
+        run: |
+          python3 .github/ci/verify-published-source.py
+          python3 ../links/.github/ci/verify-published-source.py
+      - name: Enforce artifact storage budget
+        id: artifact-budget
+        if: always()
+        run: |
+          python3 - <<'PY_BUDGET'
+          from pathlib import Path
+          import os
+          roots = [Path("playwright-report"), Path("test-results"),
+                   Path(os.environ["RUNNER_TEMP"]) / "links-static-manifest.json",
+                   Path(os.environ["RUNNER_TEMP"]) / "netlify-artifacts.json"]
+          files = []
+          for root in roots:
+              if root.is_file():
+                  files.append(root)
+              elif root.is_dir():
+                  files.extend(path for path in root.rglob("*") if path.is_file())
+          total = sum(path.stat().st_size for path in files)
+          print(f"CI evidence: {len(files)} files, {total} bytes; limit 400 MiB")
+          if total > 400 * 1024 * 1024:
+              raise SystemExit("Evidence exceeds 400 MiB; upload refused")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write("within=true\n")
+          PY_BUDGET
+      - name: Upload normal CI evidence
+        if: always() && steps.artifact-budget.outputs.within == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: web-normal-ci-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+            ${{ runner.temp }}/links-static-manifest.json
+            ${{ runner.temp }}/netlify-artifacts.json
+          retention-days: 3

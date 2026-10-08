@@ -1,0 +1,301 @@
+{
+  "generatedAt": "static",
+  "products": [
+    {
+      "slug": "braavolabs",
+      "name": "Braavolabs",
+      "lifecycle": "beta",
+      "surfaces": [
+        {
+          "kind": "web",
+          "url": "https://braavolabs.com",
+          "status": "live",
+          "source": "https://braavolabs.com (public HTTP readback on 2026-09-23T02:41:37Z (Europe/Istanbul date 2026-09-23): redirected to https://www.braavolabs.com/ with 200; title 'Braavolabs — Cross-vendor AI control'; public publication only, authenticated features not reverified)",
+          "verifiedAt": "2026-09-23",
+          "expiresAt": "2026-09-23"
+        },
+        {
+          "kind": "ios",
+          "url": "https://apps.apple.com/us/app/braavolabs/id6771440905",
+          "status": "live",
+          "source": "https://itunes.apple.com/lookup?id=6771440905&country=us (US and TR public Apple lookup on 2026-09-23T02:41:37Z (Europe/Istanbul date 2026-09-23): resultCount=1, Braavolabs 1.0.3, minimum iOS 17.0; listing availability only; local 1.0.4 candidate is not the published version)",
+          "verifiedAt": "2026-09-23",
+          "expiresAt": "2026-09-23"
+        }
+      ],
+      "primaryCta": {
+        "labelTr": "Braavolabs'ı incele",
+        "labelEn": "Explore Braavolabs",
+        "url": "/projects/braavolabs"
+      },
+      "screenshots": [
+        {
+          "path": "/projects/braavolabs/screenshot-audit-trail.png",
+          "sourceBuild": "headless-browser-capture-2026-07-11",
+          "capturedAt": "2026-07-11",
+          "altTr": "Braavolabs canlı denetim izi: her ajan adımının araç çağrısı ve maliyeti gerçek zamanlı akıyor.",
+          "altEn": "Braavolabs live audit trail: every agent step's tool call and cost streaming in real time."
+        },
+        {
+          "path": "/projects/braavolabs/screenshot-builder.png",
+          "sourceBuild": "headless-browser-capture-2026-07-11",
+          "capturedAt": "2026-07-11",
+          "altTr": "Braavolabs AI Şirket Kurucusu: tek bir komutla çok-ajanlı bir ekip kuruluyor.",
+          "altEn": "Braavolabs AI Company Builder: a single prompt standing up a multi-agent team."
+        }
+      ],
+      "claims": [
+        {
+          "id": "braavolabs-primitive-count",
+          "figures": [
+            "9"
+          ],
+          "figureWords": {
+            "9": {
+              "tr": "Dokuz",
+              "en": "Nine"
+            }
+          },
+          "statementTr": "Dokuz primitif: ACQUISITION, SALES, DELIVERY, CONTENT, OPERATIONS, FINANCE, ANALYTICS, MEMORY, GOVERNANCE.",
+          "statementEn": "Nine primitives: ACQUISITION, SALES, DELIVERY, CONTENT, OPERATIONS, FINANCE, ANALYTICS, MEMORY, GOVERNANCE.",
+          "evidenceKind": "source-code-verified",
+          "source": "ventures/braavolabs/platform/packages/core/src/constants/primitives.ts",
+          "scopeTr": "Primitif tipi/adı sayısı; kombinasyon uzayının büyüklüğü değil.",
+          "scopeEn": "The number of primitive types by name; not the size of the combination space.",
+          "owner": "braavolabs",
+          "verifiedAt": "2026-08-19",
+          "expiresAt": "2026-09-18"
+        },
+        {
+          "id": "braavolabs-provider-count",
+          "figures": [
+            "14"
+          ],
+          "statementTr": "14 LLM sağlayıcısı (BYOK) — 2026-08-19 itibarıyla.",
+          "statementEn": "14 LLM providers (BYOK) — as of 2026-08-19.",
+          "evidenceKind": "source-code-verified",
+          "source": "ventures/braavolabs/platform/packages/api/src/services/ai-client.ts (AIProviderType, PROVIDER_MODELS)",
+          "scopeTr": "Desteklenen sağlayıcı sayısı; her sağlayıcının her modelinin aynı kalitede test edildiği iddiası değil. Önceki '12' rakamı bayattı (Braavolabs'ın kendi FORGE-FAZ1 notu 07-09'da zaten bunu işaretlemişti, yulalab.com 07-11'de düzenlendiği hâlde yakalanmamıştı).",
+          "scopeEn": "The number of supported providers; not a claim that every model from every provider is tested to the same standard. The earlier figure of 12 was stale (Braavolabs' own FORGE-FAZ1 note flagged it on 07-09; a 07-11 edit to yulalab.com did not catch it).",
+          "owner": "braavolabs",
+          "verifiedAt": "2026-08-19",
+          "expiresAt": "2026-09-18"
+        },
+        {
+          "id": "braavolabs-combination-space",
+          "statementTr": "Geniş (şablonsuz) birleşim uzayı — sistemde sabit bir adım/derinlik tavanı var (MAX_STEPS_PER_RUN=50), matematiksel olarak sınırsız değil.",
+          "statementEn": "An open-ended (template-free) combination space — the system has a fixed step/depth cap (MAX_STEPS_PER_RUN=50), not mathematically unlimited.",
+          "evidenceKind": "source-code-verified",
+          "source": "ventures/braavolabs/platform packages/core (runner.ts MAX_STEPS_PER_RUN, hierarchical.ts maxDelegationDepth)",
+          "scopeTr": "Teknik kapasite tavanı; kullanıcı deneyimindeki pratik çeşitlilik iddiası değil.",
+          "scopeEn": "A technical capacity ceiling; not a claim about the practical variety a user experiences.",
+          "owner": "braavolabs",
+          "verifiedAt": "2026-08-19",
+          "expiresAt": "2026-09-18"
+        }
+      ],
+      "privacyUrl": "/privacy/braavolabs",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-28"
+    },
+    {
+      "slug": "burunfarki",
+      "name": "Burun Farkı",
+      "lifecycle": "live",
+      "surfaces": [
+        {
+          "kind": "web",
+          "url": "https://burunfark.com",
+          "status": "live",
+          "source": "https://burunfark.com (public HTTP readback on 2026-09-23T02:41:37Z (Europe/Istanbul date 2026-09-23): 200 and title 'Burun Farkı — AI At Yarışı Analiz Platformu'; public publication only, accuracy metrics and data-rights acceptance not reverified)",
+          "verifiedAt": "2026-09-23",
+          "expiresAt": "2026-09-23"
+        }
+      ],
+      "primaryCta": {
+        "labelTr": "Burun Farkı'nı incele",
+        "labelEn": "Explore Burun Farkı",
+        "url": "/projects/burunfarki"
+      },
+      "screenshots": [
+        {
+          "path": "/projects/burunfarki/screenshot-honest-stats.png",
+          "sourceBuild": "headless-browser-capture-2026-07-11",
+          "capturedAt": "2026-07-11",
+          "altTr": "Burun Farkı'nın dürüst performans çerçevesi: Top-1/Top-3 isabet oranları, son 7/30/90 gün.",
+          "altEn": "Burun Farkı's honest performance framing: Top-1/Top-3 hit rates over the last 7/30/90 days."
+        },
+        {
+          "path": "/projects/burunfarki/screenshot-daily-history.png",
+          "sourceBuild": "headless-browser-capture-2026-07-11",
+          "capturedAt": "2026-07-11",
+          "altTr": "Burun Farkı günlük AI tahmin geçmişi: her günün Top-1/Top-3 isabet detayı.",
+          "altEn": "Burun Farkı daily AI prediction history: Top-1/Top-3 hit detail for every day."
+        }
+      ],
+      "claims": [
+        {
+          "id": "burunfarki-topk-accuracy",
+          "figures": [
+            "~%29",
+            "~%62",
+            "1.225"
+          ],
+          "statementTr": "1.225 canlı takip yarışında Top-1 ~%29 (%28,6), Top-3 ~%62 (%62,0) — yayın-sonrası dürüst takip. Eğitim-zamanı backtest ayrıca ~%69 Top-3 ölçmüştü (farklı ölçüm).",
+          "statementEn": "Across 1,225 live-tracked races, Top-1 ~29% (28.6%) and Top-3 ~62% (62.0%) — honest post-deployment tracking. A separate training-time backtest measured ~69% Top-3 (a different measurement).",
+          "evidenceKind": "measured",
+          "source": "https://burunfark.com/dogruluk",
+          "scopeTr": "2026-08-25'te sayfada gösterilen 69 günlük/1.225 yarışlık canlı yayın-sonrası aggregate; eğitim-zamanı backtest değil. Kanıt tazelik penceresi 30 gündür.",
+          "scopeEn": "The 69-day/1,225-race live post-deployment aggregate displayed on 2026-08-25; not the training-time backtest. The evidence freshness window is 30 days.",
+          "owner": "burun-farki",
+          "verifiedAt": "2026-08-25",
+          "expiresAt": "2026-09-24"
+        },
+        {
+          "id": "burunfarki-explainability",
+          "statementTr": "Kural-tabanlı katkı sıralaması her tahmin için ayrı listelenir: hangi değişken sıralamayı ne yönde etkiledi.",
+          "statementEn": "A rule-based contribution ranking is listed per prediction: which variable moved the ranking, and in which direction.",
+          "evidenceKind": "source-code-verified",
+          "source": "ventures/burun-farki/web/src/components/HorseExplainCard.tsx",
+          "scopeTr": "Kullanıcıya gösterilen 'ilk 3 faktör' özelliği, sabit ağırlıklı kural-tabanlı bir sıralama — model çıktısının resmî bir açıklanabilirlik-değeri (ör. Shapley tabanlı bir yöntem) hesaplaması DEĞİL; o yönde bir iddia yapılmaz.",
+          "scopeEn": "The 'top 3 factors' shown to users is a fixed-weight, rule-based ranking — NOT a formal explainability computation over the model output (a Shapley-based method, for instance); no such claim is made.",
+          "owner": "burun-farki",
+          "verifiedAt": "2026-08-19",
+          "expiresAt": "2026-09-18"
+        }
+      ],
+      "privacyUrl": "/privacy/burunfarki",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-28"
+    },
+    {
+      "slug": "lifeos",
+      "name": "LifeOS",
+      "lifecycle": "live",
+      "surfaces": [
+        {
+          "kind": "ios",
+          "url": "https://apps.apple.com/app/id6771527233",
+          "status": "live",
+          "source": "https://itunes.apple.com/lookup?id=6771527233&country=us (US and TR public Apple lookup on 2026-09-23T02:41:37Z (Europe/Istanbul date 2026-09-23): resultCount=1, LifeOS 1.6.0, minimum iOS 16.0; listing availability only; local 1.6.1 candidate is not the published version)",
+          "verifiedAt": "2026-09-23",
+          "expiresAt": "2026-09-23"
+        },
+        {
+          "kind": "android",
+          "url": "",
+          "status": "coming-soon",
+          "source": "ventures/yulalab-com/site/src/data/projects/lifeos.ts links array code comment",
+          "verifiedAt": "2026-08-19",
+          "expiresAt": "2026-09-18"
+        }
+      ],
+      "primaryCta": {
+        "labelTr": "LifeOS'u incele",
+        "labelEn": "Explore LifeOS",
+        "url": "/projects/lifeos"
+      },
+      "screenshots": [],
+      "claims": [
+        {
+          "id": "lifeos-on-device-encryption",
+          "figures": [
+            "AES-256"
+          ],
+          "statementTr": "Cihaz-üstü veritabanı AES-256 ile şifrelenir (256-bit anahtar, güvenli rastgele üretim); bulut senkronu varsayılan kapalı, isteğe bağlı.",
+          "statementEn": "The on-device database is encrypted with AES-256 (256-bit key, cryptographically secure generation); cloud sync defaults to off and is opt-in.",
+          "evidenceKind": "source-code-verified",
+          "source": "ventures/lifeos/app/lib/core/database/encryption_key_manager.dart + db_factory.dart + core/services/sync_enabled_provider.dart",
+          "scopeTr": "Şifreleme mekanizması ve anahtar üretimi; 'SQLCipher' adı artık literal kütüphane değil, sqlite3mc'nin SQLCipher-uyumlu modu (PRAGMA cipher='sqlcipher') — işlevsel olarak aynı, isimlendirme tarihsel.",
+          "scopeEn": "The encryption mechanism and key derivation; the name 'SQLCipher' no longer refers to that literal library but to sqlite3mc's SQLCipher-compatible mode (PRAGMA cipher='sqlcipher') — functionally the same, the naming is historical.",
+          "owner": "lifeos",
+          "verifiedAt": "2026-08-19",
+          "expiresAt": "2026-09-18"
+        }
+      ],
+      "privacyUrl": "/privacy/lifeos",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-28"
+    },
+    {
+      "slug": "gravita",
+      "name": "Gravita",
+      "lifecycle": "research",
+      "surfaces": [],
+      "primaryCta": {
+        "labelTr": "Gravita'yı incele",
+        "labelEn": "Explore Gravita",
+        "url": "/projects/gravita"
+      },
+      "screenshots": [],
+      "claims": [],
+      "privacyUrl": "/privacy/motion",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-19"
+    },
+    {
+      "slug": "lissom",
+      "name": "Lissom",
+      "lifecycle": "research",
+      "surfaces": [],
+      "primaryCta": {
+        "labelTr": "Lissom'ı incele",
+        "labelEn": "Explore Lissom",
+        "url": "/projects/lissom"
+      },
+      "screenshots": [],
+      "claims": [],
+      "privacyUrl": "/privacy/motion",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-19"
+    },
+    {
+      "slug": "jablab",
+      "name": "JabLab",
+      "lifecycle": "research",
+      "surfaces": [],
+      "primaryCta": {
+        "labelTr": "JabLab'ı incele",
+        "labelEn": "Explore JabLab",
+        "url": "/projects/jablab"
+      },
+      "screenshots": [],
+      "claims": [],
+      "privacyUrl": "/privacy/motion",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-19"
+    },
+    {
+      "slug": "ostinato",
+      "name": "Ostinato",
+      "lifecycle": "research",
+      "surfaces": [],
+      "primaryCta": {
+        "labelTr": "Ostinato'yu incele",
+        "labelEn": "Explore Ostinato",
+        "url": "/projects/ostinato"
+      },
+      "screenshots": [],
+      "claims": [],
+      "privacyUrl": "/privacy/motion",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-19"
+    },
+    {
+      "slug": "choreia",
+      "name": "Choreia",
+      "lifecycle": "research",
+      "surfaces": [],
+      "primaryCta": {
+        "labelTr": "Choreia'yı incele",
+        "labelEn": "Explore Choreia",
+        "url": "/projects/choreia"
+      },
+      "screenshots": [],
+      "claims": [],
+      "privacyUrl": "/privacy/motion",
+      "supportUrl": "/support",
+      "updatedAt": "2026-08-19"
+    }
+  ]
+}

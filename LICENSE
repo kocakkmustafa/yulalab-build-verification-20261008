@@ -1,0 +1,38 @@
+YULA Lab Umbrella Site — Proprietary License
+==============================================
+
+Copyright (c) 2025–2026 Mustafa Kaan Koçak (YULA Lab). All rights reserved.
+
+This repository contains the source code, design assets and content of the
+public marketing site for YULA Lab — an independent product lab based in
+Türkiye.
+
+The code, copy, brand assets, photographs and graphics in this repository
+are the intellectual property of YULA Lab and are provided here as a
+read-only reference of the production deployment at https://yulalab.com.
+
+What you MAY do
+---------------
+- Read the source for educational reference.
+- Open issues or send pull requests proposing changes; YULA Lab decides
+  whether to accept them.
+- Quote short snippets of the code in articles or talks with attribution.
+
+What you MAY NOT do without prior written permission
+-----------------------------------------------------
+- Redistribute, sublicense or sell the source code, copy, assets or
+  derivatives.
+- Use the YULA Lab name, logo, banner, brand colors or trademarks in any
+  product, service or marketing material.
+- Republish the brand assets located under `public/brand/` or
+  `public/projects/*/` as your own.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+For partnership, content licensing or press requests:
+  merhaba@yulalab.com  ·  press@yulalab.com

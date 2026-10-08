@@ -1,0 +1,383 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+html,
+body {
+  background: #0a0a0b;
+  color: #f4f4f5;
+}
+
+body {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ---------------------------------------------------------------------
+   Glass surface — the panels that carry section copy.
+   --------------------------------------------------------------------- */
+.glass {
+  position: relative;
+  /* Light sheen gradient over a dark base. The base is what guarantees
+     text contrast: a purely light-tinted pane is only transparent, and
+     whatever sits behind it bleeds straight into the type. */
+  background:
+    linear-gradient(
+      152deg,
+      rgba(255, 255, 255, 0.085) 0%,
+      rgba(255, 255, 255, 0.028) 44%,
+      rgba(255, 255, 255, 0.06) 100%
+    ),
+    rgba(10, 10, 11, 0.66);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34),
+    0 24px 60px rgba(0, 0, 0, 0.38);
+  /* the sheen layer below paints into this box */
+  isolation: isolate;
+}
+
+/* Pointer sheen.
+   A pseudo-element rather than a rewritten background-image: the position
+   comes in through --mx/--my custom properties, so a pointer move only
+   changes two numbers and repaints one compositable layer. Rewriting
+   `background-image` on a backdrop-filtered box (which is what the source
+   design did) forces the blur to re-resolve on every mouse event — the
+   jank that approach is known for. */
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 260ms var(--ease-soft);
+  background: radial-gradient(
+    circle 42% at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(184, 240, 245, 0.06) 40%,
+    rgba(255, 255, 255, 0) 72%
+  );
+}
+@media (hover: hover) {
+  .glass:hover::before {
+    opacity: 1;
+  }
+  .glass:hover {
+    border-color: rgba(184, 240, 245, 0.28);
+  }
+}
+
+/* product panels pick up a trace of their own accent */
+.glass-accent {
+  background:
+    linear-gradient(
+      152deg,
+      color-mix(in srgb, var(--accent, #7fd8dc) 11%, transparent) 0%,
+      rgba(255, 255, 255, 0.028) 46%,
+      rgba(255, 255, 255, 0.065) 100%
+    ),
+    rgba(10, 10, 11, 0.66);
+}
+
+/* ---------------------------------------------------------------------
+   Ambient ground.
+
+   backdrop-filter can only blur what is behind it — against flat #0A0A0B
+   the panels read as plain rectangles, not glass. This gives the page a
+   soft, very low-contrast field so the blur has something to resolve.
+   Static and painted once: no animation, no scroll listener, no cost.
+   --------------------------------------------------------------------- */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      58% 44% at 72% 4%,
+      color-mix(in srgb, var(--accent, #7fd8dc) 9%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 40% at 8% 88%,
+      color-mix(in srgb, var(--accent, #7fd8dc) 5%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(40% 32% at 50% 50%, rgba(255, 255, 255, 0.022) 0%, transparent 70%);
+}
+
+/* hide scrollbars on horizontal pill rows */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* The immersive homepage supplies its own fixed navigation and a closing
+   trust footer. Keep the shared chrome server-rendered for every other route,
+   then suppress only those two explicitly marked instances when the
+   experience root is present. `:has()` is evaluated during the first style
+   pass, so there is no client-side double-header flash. */
+body:has([data-yula-experience="true"]) [data-site-header="true"],
+body:has([data-yula-experience="true"]) [data-site-mobile-drawer="true"],
+body:has([data-yula-experience="true"]) [data-site-footer="true"] {
+  display: none;
+}
+
+/* `viewport-fit=cover` lets the immersive canvas paint behind a notch. Keep
+   the shared site chrome and every non-experience route inside the same safe
+   boundary without shrinking their full-bleed backgrounds. */
+body:not(:has([data-yula-experience="true"])) main,
+[data-site-header="true"],
+[data-site-footer="true"] {
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
+}
+
+[data-site-header="true"] {
+  padding-top: var(--safe-top);
+}
+
+[data-site-footer="true"] {
+  padding-bottom: var(--safe-bottom);
+}
+
+[data-site-mobile-panel="true"] {
+  padding: calc(1.5rem + var(--safe-top)) calc(1.5rem + var(--safe-right))
+    calc(1.5rem + var(--safe-bottom)) calc(1.5rem + var(--safe-left));
+}
+
+/* IntersectionObserver-driven reveal — deliberately larger than a
+   micro-nudge: this is the "something just arrived" signal for section
+   headers and stat blocks, not a hover-level detail. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition:
+    opacity 700ms var(--ease-soft),
+    transform 700ms var(--ease-soft);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* word stagger reveal */
+.word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.6em);
+  transition:
+    opacity 650ms var(--ease-soft),
+    transform 650ms var(--ease-soft);
+}
+.word.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* page transition */
+.page-enter {
+  animation: pageIn 500ms var(--ease-soft) both;
+}
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* drift blobs */
+@keyframes driftA {
+  0%,
+  100% {
+    transform: translate3d(-10%, -8%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8%, 6%, 0) scale(1.1);
+  }
+}
+@keyframes driftB {
+  0%,
+  100% {
+    transform: translate3d(8%, 4%, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-6%, -10%, 0) scale(1);
+  }
+}
+@keyframes driftC {
+  0%,
+  100% {
+    transform: translate3d(-4%, 6%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(10%, -4%, 0) scale(1.15);
+  }
+}
+.drift-a {
+  animation: driftA 22s var(--ease-soft) infinite;
+}
+.drift-b {
+  animation: driftB 26s var(--ease-soft) infinite;
+}
+.drift-c {
+  animation: driftC 18s var(--ease-soft) infinite;
+}
+
+/* logo subtle hover */
+.logo-mark {
+  transition: transform 300ms var(--ease-soft);
+}
+.logo-mark:hover {
+  transform: rotate(3deg) scale(1.05);
+}
+
+/* link underline wipe */
+.link-wipe {
+  position: relative;
+}
+.link-wipe::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 350ms var(--ease-soft);
+}
+.link-wipe:hover::after {
+  transform: scaleX(1);
+}
+
+/* card hover */
+.card-hover {
+  transition:
+    transform 250ms var(--ease-soft),
+    border-color 250ms var(--ease-soft),
+    background-color 250ms var(--ease-soft);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* arrow nudge */
+.arrow-nudge {
+  display: inline-block;
+  transition: transform 250ms var(--ease-soft);
+}
+.group:hover .arrow-nudge,
+a:hover .arrow-nudge,
+button:hover .arrow-nudge {
+  transform: translate(2px, -2px);
+}
+
+/* focus ring helper */
+.focusable:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* dotted grid backdrop */
+.dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* hero mesh (default site) */
+.mesh-default::before,
+.mesh-default::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(120px);
+}
+.mesh-default::before {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.05), transparent 60%);
+  animation: driftA 40s var(--ease-soft) infinite;
+}
+.mesh-default::after {
+  background: radial-gradient(circle at 70% 70%, rgba(180, 200, 255, 0.04), transparent 60%);
+  animation: driftB 50s var(--ease-soft) infinite;
+}
+
+/* tilt */
+.tilt-r {
+  transform: rotate(1.5deg);
+}
+
+/* mobile menu */
+.mm-overlay {
+  backdrop-filter: blur(12px);
+}
+
+/* image-slot-style banner placeholder stripes */
+.placeholder-stripes {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0 1px,
+    transparent 1px 18px
+  );
+}
+
+/* Reduce-motion: keep the meaning (state still changes), drop the motion.
+   Continuous/automatic animation stops outright; one-shot reveals resolve
+   to their end state instantly instead of easing there. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .drift-a,
+  .drift-b,
+  .drift-c,
+  .mesh-default::before,
+  .mesh-default::after {
+    animation: none;
+  }
+  .page-enter {
+    animation-duration: 1ms;
+  }
+  .reveal,
+  .word,
+  .card-hover,
+  .logo-mark,
+  .link-wipe::after,
+  .arrow-nudge {
+    transition-duration: 1ms !important;
+  }
+}
