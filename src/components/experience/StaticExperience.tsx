@@ -40,7 +40,7 @@ export function StaticExperience({
         <p className={styles.kicker}>{copy.hero.eyebrow}</p>
         <h1>{copy.hero.title}</h1>
         <p className={styles.staticLede}>{copy.hero.lede}</p>
-        <TrackedLink href={copy.locale === "tr" ? "/consulting" : "/en/consulting"} event="home_primary_cta" className={styles.productLink}>{copy.navigation.consulting} <span aria-hidden="true">↗</span></TrackedLink>
+        <a href={copy.locale === "tr" ? "/consulting" : "/en/consulting"} className={styles.productLink}>{copy.navigation.consulting} <span aria-hidden="true">↗</span></a>
         <p className={styles.staticNotice}>{copy.hero.notice}</p>
         <TrackedLink
           href="#experience-portfolio"

@@ -243,8 +243,8 @@
     {
       "path": "src/components/experience/StaticExperience.tsx",
       "publishedSha256": "b4299365c24e84819e0040aabc13c43888097dc1eade8362024c0fdc17ff7329",
-      "candidateSha256": "d3833b45467ce391af1636ad45a512c7634647097dfb3b11d0c6b53288c6805a",
-      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion.",
+      "candidateSha256": "96265c00d019b4acb7ad7cafbfec2553815ebd96463c9bbe84cd7857025c4689",
+      "reason": "AI consulting/source clarity patch independently accepted by parent review (c9d8b5445ee8d356d092f583c384b7108dec666e8fe86b9ef5964dc246be76a5); applied as hunks on preserved Site276 source. Combined qualification and subsequent independent review remain candidate-only. TR wording refined; no publication assertion. Candidate-only 2026-10-08 correction: consulting is secondary navigation as in ExperienceOverlay; retain its existing TR/EN href,copy and style as an untracked anchor. Reserve the existing home_primary_cta event for the portfolio action. Keep the original studio-offer CTA precedence assertions unchanged; targeted local qualification is recorded separately,not publication or provider acceptance.",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
     },
     {
