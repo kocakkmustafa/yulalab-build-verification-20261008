@@ -11,7 +11,6 @@ const store = path.join(root, 'node_modules/.pnpm');
 const entries = fs.readdirSync(store);
 const installedBraces = entries.filter(entry => entry.startsWith('braces@')).map(entry => path.join(store, entry, 'node_modules/braces'));
 assert.equal(installedBraces.length, 1, 'unexpected braces version or duplicate unpatched installation');
-installedBraces.push(path.join(root, '.github/ci/netlify/node_modules/braces'));
 const approvedPackages = new Set(installedBraces.map(file => fs.realpathSync(file)));
 let assertions = 0;
 const nested = depth => '{'.repeat(depth) + 'a' + '}'.repeat(depth);
@@ -45,14 +44,9 @@ for (const entry of entries.filter(entry => entry.startsWith('micromatch@') || e
   consumers.push(entry);
   assertions++;
 }
-const cliRequire = createRequire(path.join(root, '.github/ci/netlify/node_modules/micromatch/package.json'));
-assert(approvedPackages.has(fs.realpathSync(path.dirname(cliRequire.resolve('braces/package.json')))));
-assertions++;
-
 assert(process.env.RUNNER_TEMP, 'RUNNER_TEMP must identify the owned disposable fixture area');
 const fixture = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP, 'braces-glob-'));
 const fastGlobs = entries.filter(entry => entry.startsWith('fast-glob@')).map(entry => ({ name: entry, directory: path.join(store, entry, 'node_modules/fast-glob') }));
-fastGlobs.push({ name: 'Netlify CLI fast-glob', directory: path.join(root, '.github/ci/netlify/node_modules/fast-glob') });
 try {
   for (const folder of ['a', 'b']) {
     const destination = path.join(fixture, 'nested', folder);

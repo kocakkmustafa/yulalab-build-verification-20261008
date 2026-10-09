@@ -1,4 +1,5 @@
-"""Validate local adapter artifacts, never publication or provider execution."""
+"""Validate packaged adapter artifacts, never deployment or runtime acceptance."""
+import argparse
 import gzip
 import hashlib
 import io
@@ -11,12 +12,13 @@ from pathlib import Path, PurePosixPath
 
 HANDLER = "___netlify-server-handler"
 MIDDLEWARE = "___netlify-edge-handler-src-middleware"
-GENERATOR = "@netlify/plugin-nextjs@5.15.13"
+GENERATOR = "@netlify/plugin-nextjs@5.16.2"
 MIDDLEWARE_PATTERN = (
     r"^(?:/(_next/data/[^/]{1,}))?(?:/((?!api|_next|_vercel|.*\..*).*))"
     r"(\.json|\.rsc|\.segments/.+\.segment\.rsc)?[/#\?]?$"
 )
 EDGE_DIRECTORY = ".netlify/edge-functions-dist"
+PROOF_PLUGIN = "./.github/netlify/artifact-proof"
 
 
 class ContractError(ValueError):
@@ -38,6 +40,20 @@ def regular_file(root, relative):
         require(not path.is_symlink(), f"symlink artifact path: {relative}")
     require(path.is_file(), f"missing artifact: {relative}")
     return path
+
+
+def output_directory(directory):
+    # Output roots are supplied by Netlify's lifecycle constants, never by a
+    # function manifest. Check original components before resolving the path.
+    directory = Path(directory)
+    require(directory.is_absolute() and ".." not in directory.parts, "unsafe output directory")
+    require(directory != Path(directory.anchor), "filesystem root is not an output directory")
+    current = Path(directory.anchor)
+    for part in directory.parts[1:]:
+        current = current / part
+        require(not current.is_symlink(), "symlink output directory")
+    require(directory.is_dir(), "missing output directory")
+    return directory
 
 
 def safe_archive_name(name):
@@ -84,8 +100,12 @@ def check_tar(data):
     require(f"{MIDDLEWARE}.js" in regular_files, "tar middleware entry missing")
 
 
-def validate(root):
+def validate(root, *, functions_dist=None, edge_functions_dist=None):
     root = Path(root).resolve()
+    require((functions_dist is None) == (edge_functions_dist is None), "both provider output roots are required")
+    provider_outputs = functions_dist is not None
+    functions_directory = output_directory(functions_dist if provider_outputs else root / ".netlify/functions")
+    edge_directory = output_directory(edge_functions_dist if provider_outputs else root / EDGE_DIRECTORY)
 
     def read(relative):
         return regular_file(root, relative).read_bytes()
@@ -97,9 +117,9 @@ def validate(root):
     require(config["build"]["command"] == "pnpm build", "build command mismatch")
     require(config["build"]["publish"] == ".next", "publish directory mismatch")
     require(config["build"]["environment"] == {"NODE_VERSION": "26.9.0", "PNPM_VERSION": "10.33.0"}, "build environment mismatch")
-    require(config["plugins"] == [{"package": "@netlify/plugin-nextjs"}], "build plugin mismatch")
+    require(config["plugins"] == [{"package": PROOF_PLUGIN}, {"package": "@netlify/plugin-nextjs"}], "build plugin mismatch")
     package = read_json("package.json")
-    require(package["devDependencies"]["@netlify/plugin-nextjs"] == "5.15.13", "adapter version mismatch")
+    require(package["devDependencies"]["@netlify/plugin-nextjs"] == "5.16.2", "adapter version mismatch")
     require(config["headers"] == [{"for": "/portfolio-registry.json", "values": {
         "Access-Control-Allow-Origin": "https://links.yulalab.com",
         "Access-Control-Allow-Methods": "GET",
@@ -110,14 +130,13 @@ def validate(root):
     require(len(build_id) > 5, "missing build identity")
     require(read(f".netlify/functions-internal/{HANDLER}/.next/BUILD_ID").decode().strip() == build_id, "handler build identity mismatch")
     require(read("public/portfolio-registry.json") == read(".netlify/static/portfolio-registry.json"), "registry byte mismatch")
-    functions = read_json(".netlify/functions/manifest.json")
+    functions = json.loads(regular_file(functions_directory, "manifest.json").read_bytes())
     require(isinstance(functions["functions"], list) and len(functions["functions"]) == 1, "expected one server function")
     handler = functions["functions"][0]
     require(handler["name"] == HANDLER, "server function identity mismatch")
     require(handler["generator"] == GENERATOR, "server function generator mismatch")
     require(handler.get("runtimeVersion") == "nodejs24.x", "server function runtime must be explicitly nodejs24.x")
-    zip_relative = f".netlify/functions/{HANDLER}.zip"
-    zip_path = regular_file(root, zip_relative)
+    zip_path = regular_file(functions_directory, f"{HANDLER}.zip")
     require(zip_path.stat().st_size > 0, "empty server function zip")
     require(handler["path"] == str(zip_path), "server function package path mismatch")
     with zipfile.ZipFile(zip_path) as archive:
@@ -127,7 +146,7 @@ def validate(root):
         require(archive.testzip() is None, "server zip CRC mismatch")
         require(archive.read(".next/BUILD_ID").decode().strip() == build_id, "server zip build identity mismatch")
 
-    edge = read_json(f"{EDGE_DIRECTORY}/manifest.json")
+    edge = json.loads(regular_file(edge_directory, "manifest.json").read_bytes())
     require(edge["routes"] == [{"function": MIDDLEWARE, "pattern": MIDDLEWARE_PATTERN, "excluded_patterns": []}], "expected one middleware route")
     require(edge["post_cache_routes"] == [], "unexpected post-cache routes")
     require(edge["function_config"] == {MIDDLEWARE: {"name": "Next.js Middleware Handler", "generator": GENERATOR}}, "middleware function or generator mismatch")
@@ -141,32 +160,41 @@ def validate(root):
         extension = r"eszip" if bundle["format"] == "eszip2" else r"tar\.gz"
         asset = bundle["asset"]
         require(isinstance(asset, str) and re.fullmatch(r"[0-9a-f]{64}\." + extension, asset), "unsafe edge asset path or extension")
-        relative = f"{EDGE_DIRECTORY}/{asset}"
-        data = read(relative)
+        asset_path = regular_file(edge_directory, asset)
+        data = asset_path.read_bytes()
         require(bool(data), "empty edge asset")
         require(hashlib.sha256(data).hexdigest() == asset[:64], "edge asset SHA-256 mismatch")
         if bundle["format"] == "eszip2":
             check_eszip(data)
         else:
             check_tar(data)
-        edge_assets.append(relative)
+        edge_assets.append(asset_path)
 
-    paths = ["netlify.toml", "pnpm-lock.yaml", ".next/BUILD_ID",
-             ".next/prerender-manifest.json", ".netlify/static/portfolio-registry.json",
-             ".netlify/functions/manifest.json", zip_relative,
-             f"{EDGE_DIRECTORY}/manifest.json", *edge_assets]
+    paths = [regular_file(root, relative) for relative in
+             ("netlify.toml", "pnpm-lock.yaml", ".next/BUILD_ID",
+              ".next/prerender-manifest.json", ".netlify/static/portfolio-registry.json")]
+    paths += [regular_file(functions_directory, "manifest.json"), zip_path,
+              regular_file(edge_directory, "manifest.json"), *edge_assets]
     files = []
-    for relative in paths:
-        data = read(relative)
-        files.append({"path": relative, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
-    return {"status": "PASS", "scope": "local build artifact; no publication or provider execution",
+    for artifact_path in paths:
+        data = artifact_path.read_bytes()
+        label = str(artifact_path.relative_to(root)) if artifact_path.is_relative_to(root) else str(artifact_path)
+        files.append({"path": label, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+    scope = "provider build artifact; no deployment or runtime execution" if provider_outputs else "local build artifact; no publication or provider execution"
+    return {"status": "PASS", "scope": scope,
             "buildId": build_id, "functionSystem": functions["system"],
             "registryByteParity": True, "edgeFormats": sorted(formats), "files": files}
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--functions-dist")
+    parser.add_argument("--edge-functions-dist")
+    arguments = parser.parse_args()
     try:
-        result = validate(Path(__file__).resolve().parents[2])
+        result = validate(Path(__file__).resolve().parents[2],
+                          functions_dist=arguments.functions_dist,
+                          edge_functions_dist=arguments.edge_functions_dist)
     except (OSError, ValueError, KeyError, TypeError, tarfile.TarError, zipfile.BadZipFile, EOFError) as error:
         raise SystemExit(f"Netlify artifact contract FAIL: {error}") from error
     print(json.dumps(result, indent=2))

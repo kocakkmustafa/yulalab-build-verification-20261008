@@ -7,7 +7,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript)](https://www.typescriptlang.org)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-3-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/license-Proprietary-lightgrey)](./LICENSE)
 
 </div>
@@ -42,7 +42,7 @@ Each project is configured in [`src/data/projects/<slug>.ts`](./src/data/project
 | Layer        | Choice                                                                    |
 | ------------ | ------------------------------------------------------------------------- |
 | Framework    | **Next.js 15** App Router · React 19 · TypeScript 5.7                     |
-| Styling      | TailwindCSS 3 · `@tailwindcss/typography` · per-project CSS variables     |
+| Styling      | TailwindCSS 4 · `@tailwindcss/typography` · per-project CSS variables     |
 | Motion       | Framer Motion · CSS-only reveal hook for accessibility                    |
 | Icons        | Lucide                                                                    |
 | i18n         | `next-intl` 4 — TR (default) and EN                                       |
@@ -175,47 +175,51 @@ rows changes that accounting and must be considered before such maintenance.
 
 ## Deployment
 
-[yulalab.com](https://yulalab.com) is hosted on Netlify project `yulalab-web`
-(`65a77e28-286e-415c-a0d1-fab7370a3c57`). The 2026-09-08 provider readback
-confirmed the published deployment `6a9dd77a87eb60ea7fc2fde0`, ready state and
-forced HTTPS. Deployment is manual; this Netlify project has no connected Git
-repository. Domain and Google Workspace MX settings are managed separately.
+[yulalab.com](https://yulalab.com) uses the existing Netlify project
+`yulalab-web` (`65a77e28-286e-415c-a0d1-fab7370a3c57`). The 2026-10-08
+provider readback confirmed its Git connection to `kocakkmustafa/yulalab-web`:
+`main` automatically publishes production, and pull requests enable deploy
+previews. The last healthy deployment was
+`6abe74c20082f700082a053c` at source
+`66dd2ff9e048e71214cffabfc20b997aa0d8263c`; the retained preceding deployment
+`6ab6a95798c19600083d6a5e` is a rollback reference, not a rollback performed
+by this candidate.
 
-Install the frozen product dependencies and independently locked Netlify CLI
-27.5.0 before using the build or deploy commands:
+The separately installed Netlify CLI, its lockfile, and local upload commands
+have been removed. Publication uses the existing connected Git build. Local
+verification uses the frozen product lock, `pnpm build`, and the existing
+localhost tests; it does not produce or accept Netlify packages.
 
-```bash
-pnpm install --frozen-lockfile
-npm ci --prefix .github/ci/netlify --no-audit --no-fund
-pnpm build:netlify
-```
+`netlify.toml` retains `pnpm build`, `.next`, the pinned Next.js adapter and
+registry headers. A small native Build Plugin runs the existing render-mode
+and artifact contracts after Netlify packages Functions and middleware, before
+the adapter swaps the publish directory. The contract receives the provider's
+absolute output directories, checks the same ZIP, ESZIP, middleware, build-ID,
+registry and explicit Node 24 runtime assertions, and fails the build before
+deployment if any assertion fails. Python 3.11 or later is required for its
+standard-library TOML parser. Provider execution of this plugin is unverified
+until a permitted build actually completes it.
 
-`netlify.toml` uses the pinned `@netlify/plugin-nextjs` adapter. The offline
-build produces the Next.js and Netlify artifacts without publishing them.
-The build uses Node 26.9.0; the CLI scripts explicitly set
-`AWS_LAMBDA_JS_RUNTIME=nodejs24.x`, a supported Netlify Functions runtime.
-The artifact checker rejects a missing or different runtime in the generated
-function manifest. This variable is a process/provider setting, not a
-`netlify.toml` environment setting. A future provider-managed build must verify
-the same runtime setting before publication; local artifacts do not establish
-the remote configuration.
-Authenticated access to the existing Netlify projects is required for uploads:
+Next and its lint preset are pinned to 15.5.27, with the Netlify adapter pinned
+to 5.16.2. This follows the [September 30 Netlify compatibility and security
+guidance](https://www.netlify.com/changelog/2026-09-30-nextjs-react-security-vulnerabilities/).
+The version refresh retains all existing lint rules and artifact assertions;
+it does not remove the remaining lint and embedded-adapter braces paths.
 
-```bash
-pnpm run deploy:preview
-pnpm run deploy
-```
+Build Node is pinned to 26.9.0 and pnpm to 10.33.0. Verify the effective provider
+versions in the build log. `AWS_LAMBDA_JS_RUNTIME=nodejs24.x` must be verified
+in the provider environment; Netlify does not support this runtime setting in
+`netlify.toml`. The artifact contract rejects a missing or different runtime.
+Local native image compatibility exercises Next's own Sharp consumer, rather
+than retaining the removed CLI's IPX server.
 
-`deploy:preview` builds and uploads a draft to the existing private
-`yulalab-preview` project (`322c6a44-e788-49e4-aa12-a397e0f85d43`), whose
-production and preview access are protected by Netlify Login. Preserve and
-verify that protection before upload. `deploy` builds and publishes to the
-explicit canonical production project above; run it only for the accepted
-candidate under the publication authorization. Both commands use the locked
-CLI and explicit project IDs. Record the actual deploy ID, source revision,
-provider result and canonical browser acceptance after publishing; a build or
-CI result alone is not publication evidence. Keep the prior deployment receipt
-for rollback.
+Before any branch push or PR, inspect every connected provider and GitHub
+workflow trigger. The current repository runs GitHub Actions on pull requests
+and has a Vercel commit status; a free Netlify preview does not establish that
+these other listeners are free or authorized. Do not publish production until
+the exact candidate, independent review, dependency gates, provider package
+proof and live TR/EN routes, API behavior, ISR, headers and CSP are accepted.
+Record the actual deployment ID and final source revision separately.
 
 Vercel Web Analytics is rendered only when the platform exposes `VERCEL=1`.
 Local and non-Vercel builds do not request the provider-specific

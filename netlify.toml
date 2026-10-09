@@ -7,6 +7,9 @@
   PNPM_VERSION = "10.33.0"
 
 [[plugins]]
+  package = "./.github/netlify/artifact-proof"
+
+[[plugins]]
   package = "@netlify/plugin-nextjs"
 
 [[headers]]

@@ -12,8 +12,8 @@
     {
       "path": "package.json",
       "publishedSha256": "69a42b8eb270dbbf561c71b747f0dbf12ddc11842f1d74704a2fc37c28fba809",
-      "candidateSha256": "6f86fc7a3298fc952b889bdac37ecf5ac08023efcc0fc33ae98b6d7d73506ee4",
-      "reason": "Pinned upstream braces recursion fix; preserve package identity and raw audit finding. Parent-reviewed exact tsx import patch a0fe490da8223803397ef70fda6deba74c463dda10b8e115d644f61db4298048, source tree62e8d3a3fe20a5cdb95be2294cebb1248c0fb286 (tsx-import-gate-qualification/approval.json SHA2567da9e1c35f2995ffb388aaf5e9fecc873866023c72c095e74b3e41c7c5953b9d): replace CLI launch with node --import tsx; validators, exporter --check, failure propagation and dependency declarations unchanged. Source acceptance only; prior guarded registry attempt FAILED, not runtime or publication acceptance.",
+      "candidateSha256": "b0ff823e4f6af8f28b075dda3ea19b8e2970c62ea307edf71eec3a19c3af52d7",
+      "reason": "Pinned upstream braces recursion fix; preserve package identity and raw audit finding. Parent-reviewed exact tsx import patch a0fe490da8223803397ef70fda6deba74c463dda10b8e115d644f61db4298048, source tree62e8d3a3fe20a5cdb95be2294cebb1248c0fb286 (tsx-import-gate-qualification/approval.json SHA2567da9e1c35f2995ffb388aaf5e9fecc873866023c72c095e74b3e41c7c5953b9d): replace CLI launch with node --import tsx; validators, exporter --check, failure propagation and dependency declarations unchanged. Source acceptance only; prior guarded registry attempt FAILED, not runtime or publication acceptance. Candidate-only narrow dependency update for newly reported GHSA-68fv-2mgg-jv7q and GHSA-wq5f-xc86-pv6w: source-map-js 1.2.2 and sharp 0.35.5 with matching platform packages and libvips 1.3.4. Preserve prior braces/forge HOLD evidence. Runtime, audit and publication acceptance are not established by this source change. Candidate-only CLI removal and provider-lifecycle artifact proof; independent review and execution remain pending. Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence. Candidate-only official supported refresh: Next and matching unchanged-rule lint preset 15.5.27, Netlify adapter 5.16.2; preserve existing non-Next resolved lint dependencies and every artifact assertion. Align the Deno workspace declaration with the current package manifest while preserving remote hashes. Both braces paths remain explicit; native/build/provider/publication gates are unrun.",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
     },
     {
@@ -26,8 +26,8 @@
     {
       "path": "README.md",
       "publishedSha256": "ba4212bed0476cc6bf3cd30d23251f1211eabb931fb14c58eb0ea1d73420f0ea",
-      "candidateSha256": "fe339d43338c48cfbc0c46f9342d3e6e58a465a72e8524acbd987b5660792e71",
-      "reason": "Document existing Netlify publication history separately from candidate Node 26 builds and explicit supported Node 24 function runtime; preserve approval and provider-readback requirements.",
+      "candidateSha256": "eb1d2405c7a577e5a5ffd4bd46aae62c0c2880cb98c8c47d4ec988b9328d9c05",
+      "reason": "Document existing Netlify publication history separately from candidate Node 26 builds and explicit supported Node 24 function runtime; preserve approval and provider-readback requirements. Candidate-only CLI removal and provider-lifecycle artifact proof; independent review and execution remain pending. Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence. Candidate-only official supported refresh: Next and matching unchanged-rule lint preset 15.5.27, Netlify adapter 5.16.2; preserve existing non-Next resolved lint dependencies and every artifact assertion. Align the Deno workspace declaration with the current package manifest while preserving remote hashes. Both braces paths remain explicit; native/build/provider/publication gates are unrun.",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
     },
     {
@@ -69,15 +69,15 @@
       "path": "pnpm-lock.yaml",
       "publishedSha256": "0214f3938ff0c89a3ae8cdaa211770e922672ab5d8394519bade0fe5bb90bc5a",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE",
-      "candidateSha256": "36621a1b63ca03af459f5d2b0b89dbd67ee583eef4af05d386af7356d1fe760a",
-      "reason": "Pinned upstream braces recursion fix; preserve package identity and raw audit finding."
+      "candidateSha256": "d92b3b08e7de8dfb7e5ba13593b4cf1530de2c030a44ab5619c41204b5d09392",
+      "reason": "Pinned upstream braces recursion fix; preserve package identity and raw audit finding. Candidate-only narrow dependency update for newly reported GHSA-68fv-2mgg-jv7q and GHSA-wq5f-xc86-pv6w: source-map-js 1.2.2 and sharp 0.35.5 with matching platform packages and libvips 1.3.4. Preserve prior braces/forge HOLD evidence. Runtime, audit and publication acceptance are not established by this source change. Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence. Candidate-only official supported refresh: Next and matching unchanged-rule lint preset 15.5.27, Netlify adapter 5.16.2; preserve existing non-Next resolved lint dependencies and every artifact assertion. Align the Deno workspace declaration with the current package manifest while preserving remote hashes. Both braces paths remain explicit; native/build/provider/publication gates are unrun."
     },
     {
       "path": "netlify.toml",
       "publishedSha256": "ad306e4e273440ccd8c81daf3919e39e829e4840e57be7b4f12bc151a1659ddd",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE",
-      "candidateSha256": "173d80a5a8a01ece03f172fe54290baaae234b4e0c74a6828eb4bd0be6a416a9",
-      "reason": "Select the current Node 26.9.0 build toolchain; Functions runtime is explicitly selected by the CLI process and checked separately in generated artifacts."
+      "candidateSha256": "f6ecac6e06578340161d6e92756093fc7fdd3a2ffe1ec399122d752f75ef2455",
+      "reason": "Select the current Node 26.9.0 build toolchain; Functions runtime is explicitly selected by the CLI process and checked separately in generated artifacts. Candidate-only CLI removal and provider-lifecycle artifact proof; independent review and execution remain pending. Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence."
     },
     {
       "path": "public/portfolio-registry.json",
@@ -96,8 +96,8 @@
     {
       "path": "deno.lock",
       "publishedSha256": "b6e624268f9825b9b67e7bb0965ec88558248bd751a24a307a5b7f11288b3187",
-      "candidateSha256": "2b799c9101047f6c30eeabf9e98366632b2c3ab250569608af75afe44d03de3a",
-      "reason": "Keep the pinned Deno/Netlify edge dependency declaration aligned with the audited exact Next 15.5.24 package so the Linux Node 22 adapter build leaves tracked source bytes unchanged.",
+      "candidateSha256": "98f4d61997ada9048811c000241c273d34b00a2b0de8505718134af11d5a488b",
+      "reason": "Keep the pinned Deno/Netlify edge dependency declaration aligned with the audited exact Next 15.5.24 package so the Linux Node 22 adapter build leaves tracked source bytes unchanged. Candidate-only official supported refresh: Next and matching unchanged-rule lint preset 15.5.27, Netlify adapter 5.16.2; preserve existing non-Next resolved lint dependencies and every artifact assertion. Align the Deno workspace declaration with the current package manifest while preserving remote hashes. Both braces paths remain explicit; native/build/provider/publication gates are unrun.",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
     },
     {
@@ -208,8 +208,8 @@
     {
       "path": "tailwind.config.ts",
       "publishedSha256": "4e514350d6c14ebe9e458b0fc1b6d8fb71648bab5d4685c554d75354317f9568",
-      "candidateSha256": "17ac99cae18950a38e531b87e44adc7b56a03eb9910278fb611ff49570edda39",
-      "reason": "Load the same typography plugin through ESM import; Node26 dev TS config loading otherwise throws require-is-not-defined.",
+      "candidateSha256": "2a6087d94c0f433334cd3afcd5c2da108ca2b0c8b1ca61da3858a7508dfdd965",
+      "reason": "Load the same typography plugin through ESM import; Node26 dev TS config loading otherwise throws require-is-not-defined. Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence.",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
     },
     {
@@ -301,6 +301,20 @@
       "publishedSha256": null,
       "candidateSha256": "a5319babc9c69b7ff1b736602cb5ac8f576f934f1751b08be416b7540136738a",
       "reason": "Candidate-only bilingual support draft rendering, diagnostics/redaction and no-form/no-response-time regression assertions; parent review/runtime qualification pending.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "publishedSha256": "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc",
+      "candidateSha256": "5b0bc4c78be977cd81f947fb5563aaa7cc6d451e6f1c53a3260b7656a7144d20",
+      "reason": "Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence.",
+      "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
+    },
+    {
+      "path": "src/app/globals.css",
+      "publishedSha256": "e5bb0e0c9315609d0d5a25327d1fd6c31076db67d18f457fb378fc4386e1a78d",
+      "candidateSha256": "b02178988694795c6d4f201d9973624efba27bc5369b7a214b1addd42aed5429",
+      "reason": "Candidate-only supported Tailwind4 source migration and CLI removal; retain legacy UI reset/colors/spacing/gradients and existing lint/tests/security headers/API/ISR behavior. Preserve artifact proof through the provider lifecycle. New native/build/browser/provider verification and complete braces remediation remain pending; this is not publication evidence.",
       "evidenceClass": "CANDIDATE_ONLY_NOT_PUBLICATION_EVIDENCE"
     }
   ]

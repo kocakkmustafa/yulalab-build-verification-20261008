@@ -1,17 +1,23 @@
-name: Candidate verification (manual only)
+name: Final candidate verification (single manual run)
 'on':
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact reviewed candidate commit SHA; no branch drift
+        required: true
+        type: string
 permissions:
   contents: read
 jobs:
   build-and-test:
-    name: lint, typecheck, unit, Netlify build, localhost e2e, audit
+    name: Independent tests and raw audit results; provider gate separate
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       YULA_E2E_PORT: '4189'
       LINKS_COMMIT: 43524f61e28d9bbd73be372ca8bc30feedddb8ad
+      EXPECTED_COMMIT: ${{ inputs.expected_sha }}
     services:
       postgres:
         image: postgres:17
@@ -20,48 +26,58 @@ jobs:
           POSTGRES_DB: yula_attribution_test
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - name: Checkout exact web revision
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Verify exact candidate tree with only documented workflow replacement
-        run: |
-          python3 - <<'PY_TREE'
-          import subprocess, hashlib
-          tree = {}
-          rows = subprocess.check_output(['git', 'ls-tree', '-r', '-z', 'HEAD']).split(b'\0')
-          for row in rows:
-              if not row:
-                  continue
-              meta, name = row.split(b'\t'); mode, kind, digest = meta.decode().split()
-              name = name.decode()
-              if name == '.github/workflows/ci.yml':
-                  digest = '7eb8852fcbd50b94c4bdd60b6f5ae04691ecb368'
-              node = tree
-              for part in name.split('/')[:-1]:
-                  node = node.setdefault(part, {})
-              node[name.split('/')[-1]] = (mode, digest)
-          def tree_hash(node):
-              data = b''
-              for name, value in sorted(node.items(), key=lambda p: p[0] + ('/' if isinstance(p[1], dict) else '')):
-                  mode, digest = ('40000', tree_hash(value)) if isinstance(value, dict) else value
-                  data += mode.encode() + b' ' + name.encode() + b'\0' + bytes.fromhex(digest)
-              return hashlib.sha1(b'tree ' + str(len(data)).encode() + b'\0' + data).hexdigest()
-          actual = tree_hash(tree)
-          if actual != 'a4314781886a6469a33b3191c5e3c9be9619a0ed':
-              raise SystemExit('Candidate tree mismatch: ' + actual)
-          print('Exact candidate tree verified:', actual)
-          PY_TREE
-      - name: Checkout immutable Links sibling
-        run: |
+    - name: Checkout exact web revision
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        fetch-depth: 1
+        persist-credentials: false
+      id: checkout
+    - name: Verify exact candidate tree with only documented workflow replacement
+      run: |
+        python3 - <<'PY_TREE'
+        import subprocess, hashlib, json, os, re
+        from pathlib import Path
+        evidence = Path(os.environ["RUNNER_TEMP"]) / "verification-evidence"
+        evidence.mkdir(exist_ok=True)
+        expected = os.environ["EXPECTED_COMMIT"]
+        if not re.fullmatch(r"[0-9a-f]{40}", expected):
+            raise SystemExit("expected_sha must be an exact lowercase commit SHA")
+        head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        if head != expected or head != os.environ["GITHUB_SHA"]:
+            raise SystemExit("Checkout/dispatch commit mismatch")
+        tree = {}
+        rows = subprocess.check_output(['git', 'ls-tree', '-r', '-z', 'HEAD']).split(b'\0')
+        for row in rows:
+            if not row:
+                continue
+            meta, name = row.split(b'\t'); mode, kind, digest = meta.decode().split()
+            name = name.decode()
+            if name == '.github/workflows/ci.yml':
+                digest = '7eb8852fcbd50b94c4bdd60b6f5ae04691ecb368'
+            node = tree
+            for part in name.split('/')[:-1]:
+                node = node.setdefault(part, {})
+            node[name.split('/')[-1]] = (mode, digest)
+        def tree_hash(node):
+            data = b''
+            for name, value in sorted(node.items(), key=lambda p: p[0] + ('/' if isinstance(p[1], dict) else '')):
+                mode, digest = ('40000', tree_hash(value)) if isinstance(value, dict) else value
+                data += mode.encode() + b' ' + name.encode() + b'\0' + bytes.fromhex(digest)
+            return hashlib.sha1(b'tree ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        actual = tree_hash(tree)
+        if actual != '7435d538a4d131906b65df26eef637dfdb01247c':
+            raise SystemExit('Candidate tree mismatch: ' + actual)
+        print('Exact candidate tree verified:', actual)
+        receipt = {"commit": head, "actual_tree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], text=True).strip(), "normalized_tree": actual, "V2_source_tree": "a67fccc265f1f1b4920cee646b6aeb913392855b", "workflow_sha256": hashlib.sha256(Path(".github/workflows/ci.yml").read_bytes()).hexdigest(), "run_id": os.environ["GITHUB_RUN_ID"], "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"], "provider_packaging": "UNRUN_SEPARATE_REQUIRED_GATE"}
+        (evidence / "source-identity.json").write_text(json.dumps(receipt, indent=2) + "\n")
+        PY_TREE
+      id: identity
+    - name: Checkout immutable Links sibling
+      run: |
+        {
           set -euo pipefail
           [[ "$LINKS_COMMIT" =~ ^[0-9a-f]{40}$ ]]
           git init ../links
@@ -69,16 +85,22 @@ jobs:
           git -C ../links fetch --no-tags --depth 1 origin "$LINKS_COMMIT"
           git -C ../links checkout --detach FETCH_HEAD
           test "$(git -C ../links rev-parse HEAD)" = "$LINKS_COMMIT"
-      - name: Set up pinned pnpm
-        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
-        with:
-          version: 10.33.0
-      - name: Set up pinned Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: 26.9.0
-      - name: Record runner and source identity
-        run: |
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/links_checkout.log"
+      id: links_checkout
+      shell: bash
+    - name: Set up pinned pnpm
+      uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa
+      with:
+        version: 10.33.0
+      id: pnpm
+    - name: Set up pinned Node
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: 26.9.0
+      id: node
+    - name: Record runner and source identity
+      run: |
+        {
           git rev-parse HEAD
           git rev-parse HEAD^{tree}
           git -C ../links rev-parse HEAD
@@ -86,96 +108,347 @@ jobs:
           pnpm --version
           python3 --version
           uname -a
-      - name: Verify web publication baseline and reviewed delta; unchanged Links
-        run: |
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/runner_identity.log"
+      id: runner_identity
+      shell: bash
+    - name: Verify web publication baseline and reviewed delta; unchanged Links
+      run: |
+        {
           python3 .github/ci/verify-published-source.py
           python3 ../links/.github/ci/verify-published-source.py
-      - name: Validate Links hosting and exact static package
-        run: |
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/source_pre.log"
+      id: source_pre
+      shell: bash
+    - name: Validate Links hosting and exact static package
+      run: |
+        {
           (cd ../links && python3 .github/ci/static-contract.py)
           python3 ../links/.github/ci/netlify-contract.py "$RUNNER_TEMP/links-static" > "$RUNNER_TEMP/links-static-manifest.json"
-      - name: Netlify artifact contract regression fixtures with Python optimization
-        run: python3 -B -O .github/ci/test-netlify-contract.py
-      - name: Install frozen product dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Install locked offline build CLI
-        run: npm ci --prefix .github/ci/netlify --no-audit --no-fund
-      - name: Verify locked tooling graph and blobs peer consumers
-        run: |
-          npm ls --all --prefix .github/ci/netlify
-          node .github/ci/verify-netlify-blobs-peers.cjs
-      - name: Verify installed braces security patch and glob behavior
-        run: node .github/ci/verify-braces-patch.cjs
-      - name: Verify overridden CI dependency compatibility
-        run: node .github/ci/verify-tool-compatibility.mjs
-      - name: Lint
-        run: pnpm lint
-      - name: Typecheck
-        run: pnpm typecheck
-      - name: All existing unit tests with disposable PostgreSQL 17
-        run: pnpm test
-        env:
-          USER: postgres
-          ATTRIBUTION_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/yula_attribution_test
-      - name: Public content and TR EN parity
-        run: pnpm verify:claims:local
-      - name: Public registry structure and generated file
-        run: pnpm verify:claims
-      - name: URL well-formedness without live requests
-        run: pnpm verify:links --no-live
-      - name: Build Next and Netlify artifacts offline
-        run: pnpm build:netlify
-      - name: Product render mode from built output
-        run: pnpm verify:render-mode
-      - name: Verify Netlify config and generated artifacts
-        run: python3 .github/ci/netlify-contract.py > "$RUNNER_TEMP/netlify-artifacts.json"
-      - name: Install Chromium for localhost E2E
-        run: pnpm exec playwright install --with-deps chromium
-      - name: All existing localhost E2E tests
-        run: pnpm exec playwright test --workers=1 --retries=0 --reporter=list,json --trace=retain-on-failure
-        env:
-          PLAYWRIGHT_JSON_OUTPUT_FILE: playwright-report/results.json
-      - name: Dependency audit (production, high+)
-        run: pnpm audit --prod --audit-level high
-      - name: Dependency audit (including build and deployment tools, high+)
-        run: pnpm audit --audit-level high
-      - name: Dependency audit (locked Netlify CLI, high+)
-        run: npm audit --prefix .github/ci/netlify --audit-level high
-      - name: Verify candidate source bytes after build and tests
-        run: |
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/links_contract.log"
+      id: links_contract
+      continue-on-error: true
+      shell: bash
+    - name: Netlify artifact contract regression fixtures with Python optimization
+      run: |
+        {
+          python3 -B -O .github/ci/test-netlify-contract.py
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/contract_fixtures.log"
+      id: contract_fixtures
+      continue-on-error: true
+      shell: bash
+    - name: Install frozen product dependencies
+      run: |
+        {
+          pnpm install --frozen-lockfile
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/install.log"
+      id: install
+      shell: bash
+    - name: Verify removed CLI and image-server tooling is absent
+      run: |
+        {
+          node .github/ci/verify-toolchain-absence.cjs
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/absence_pre.log"
+      id: absence_pre
+      continue-on-error: true
+      shell: bash
+    - name: Verify installed braces security patch and glob behavior
+      run: |
+        {
+          node .github/ci/verify-braces-patch.cjs
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/braces_patch.log"
+      id: braces_patch
+      continue-on-error: true
+      shell: bash
+    - name: Verify overridden CI dependency compatibility
+      run: |
+        {
+          node .github/ci/verify-tool-compatibility.mjs
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/native.log"
+      id: native
+      continue-on-error: true
+      shell: bash
+    - name: Lint
+      run: |
+        {
+          pnpm lint
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/lint.log"
+      id: lint
+      continue-on-error: true
+      shell: bash
+    - name: Typecheck
+      run: |
+        {
+          pnpm typecheck
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/typecheck.log"
+      id: typecheck
+      continue-on-error: true
+      shell: bash
+    - name: All existing unit tests with disposable PostgreSQL 17
+      run: |
+        {
+          node - <<'JS_PG'
+          const assert = require("node:assert/strict");
+          const { Client } = require("pg");
+          (async () => {
+            const client = new Client({ connectionString: process.env.ATTRIBUTION_TEST_DATABASE_URL, connectionTimeoutMillis: 10000, query_timeout: 10000 });
+            await client.connect();
+            try {
+              const result = await client.query("SHOW server_version_num");
+              assert.match(result.rows[0].server_version_num, /^17[0-9]{4}$/);
+              console.log(JSON.stringify({ postgres_server_version_num: result.rows[0].server_version_num }));
+            } finally { await client.end(); }
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+        JS_PG
+          pnpm test --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/verification-evidence/unit-results.json"
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/unit.log"
+      env:
+        USER: postgres
+        ATTRIBUTION_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/yula_attribution_test
+      id: unit
+      continue-on-error: true
+      shell: bash
+    - name: Public content and TR EN parity
+      run: |
+        {
+          pnpm verify:claims:local
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/claims_local.log"
+      id: claims_local
+      continue-on-error: true
+      shell: bash
+    - name: Public registry structure and generated file
+      run: |
+        {
+          pnpm verify:claims
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/registry.log"
+      id: registry
+      continue-on-error: true
+      shell: bash
+    - name: URL well-formedness without live requests
+      run: |
+        {
+          pnpm verify:links --no-live
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/links_shape.log"
+      id: links_shape
+      continue-on-error: true
+      shell: bash
+    - name: Build Next artifacts (Netlify packaging contract runs in provider lifecycle)
+      run: |
+        {
+          pnpm build
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/build.log"
+      id: build
+      continue-on-error: true
+      shell: bash
+    - name: Product render mode from built output
+      run: |
+        {
+          pnpm verify:render-mode
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/isr.log"
+      id: isr
+      continue-on-error: true
+      shell: bash
+      if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.build.outcome == 'success' }}
+    - name: Install Chromium for localhost E2E
+      run: |
+        {
+          pnpm exec playwright install --with-deps chromium
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/chromium.log"
+      id: chromium
+      continue-on-error: true
+      shell: bash
+    - name: All existing localhost E2E tests
+      run: |
+        {
+          pnpm exec playwright test --workers=1 --retries=0 --reporter=list,json --trace=retain-on-failure
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/e2e.log"
+      env:
+        PLAYWRIGHT_JSON_OUTPUT_FILE: playwright-report/results.json
+      id: e2e
+      continue-on-error: true
+      shell: bash
+      if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.build.outcome == 'success' && steps.chromium.outcome
+        == 'success' }}
+    - name: Dependency audit (production, high+) (raw failure retained)
+      run: |
+        set +e
+        pnpm audit --prod --audit-level high --json > "$RUNNER_TEMP/verification-evidence/audit_prod.json" 2> "$RUNNER_TEMP/verification-evidence/audit_prod.stderr.log"
+        audit_exit=$?
+        printf '%s\n' "$audit_exit" > "$RUNNER_TEMP/verification-evidence/audit_prod.exit-code"
+        cat "$RUNNER_TEMP/verification-evidence/audit_prod.json"
+        cat "$RUNNER_TEMP/verification-evidence/audit_prod.stderr.log" >&2
+        exit "$audit_exit"
+      id: audit_prod
+      continue-on-error: true
+      shell: bash
+      if: ${{ !cancelled() && steps.source_pre.outcome == 'success' && steps.pnpm.outcome == 'success' }}
+    - name: Dependency audit (including build and deployment tools, high+) (raw failure retained)
+      run: |
+        set +e
+        pnpm audit --audit-level high --json > "$RUNNER_TEMP/verification-evidence/audit_full.json" 2> "$RUNNER_TEMP/verification-evidence/audit_full.stderr.log"
+        audit_exit=$?
+        printf '%s\n' "$audit_exit" > "$RUNNER_TEMP/verification-evidence/audit_full.exit-code"
+        cat "$RUNNER_TEMP/verification-evidence/audit_full.json"
+        cat "$RUNNER_TEMP/verification-evidence/audit_full.stderr.log" >&2
+        exit "$audit_exit"
+      id: audit_full
+      continue-on-error: true
+      shell: bash
+      if: ${{ !cancelled() && steps.source_pre.outcome == 'success' && steps.pnpm.outcome == 'success' }}
+    - name: Confirm removed toolchain remains absent after tests
+      run: |
+        {
+          node .github/ci/verify-toolchain-absence.cjs
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/absence_post.log"
+      id: absence_post
+      continue-on-error: true
+      shell: bash
+      if: ${{ !cancelled() && steps.source_pre.outcome == 'success' && steps.install.outcome == 'success' }}
+    - name: Verify candidate source bytes after build and tests
+      run: |
+        {
           python3 .github/ci/verify-published-source.py
           python3 ../links/.github/ci/verify-published-source.py
-      - name: Enforce artifact storage budget
-        id: artifact-budget
-        if: always()
-        run: |
-          python3 - <<'PY_BUDGET'
-          from pathlib import Path
-          import os
-          roots = [Path("playwright-report"), Path("test-results"),
-                   Path(os.environ["RUNNER_TEMP"]) / "links-static-manifest.json",
-                   Path(os.environ["RUNNER_TEMP"]) / "netlify-artifacts.json"]
-          files = []
-          for root in roots:
-              if root.is_file():
-                  files.append(root)
-              elif root.is_dir():
-                  files.extend(path for path in root.rglob("*") if path.is_file())
-          total = sum(path.stat().st_size for path in files)
-          print(f"CI evidence: {len(files)} files, {total} bytes; limit 400 MiB")
-          if total > 400 * 1024 * 1024:
-              raise SystemExit("Evidence exceeds 400 MiB; upload refused")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-              output.write("within=true\n")
-          PY_BUDGET
-      - name: Upload normal CI evidence
-        if: always() && steps.artifact-budget.outputs.within == 'true'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: web-normal-ci-${{ github.sha }}
-          path: |
-            playwright-report/
-            test-results/
-            ${{ runner.temp }}/links-static-manifest.json
-            ${{ runner.temp }}/netlify-artifacts.json
-          retention-days: 3
+          git diff --exit-code
+          git -C ../links diff --exit-code
+        } 2>&1 | tee "$RUNNER_TEMP/verification-evidence/source_post.log"
+      id: source_post
+      continue-on-error: true
+      shell: bash
+      if: ${{ !cancelled() && steps.source_pre.outcome == 'success' }}
+    - name: Collect independent test and raw audit outcomes
+      id: collect
+      if: ${{ always() }}
+      env:
+        STEP_RESULTS: ${{ toJSON(steps) }}
+      shell: bash
+      run: |
+        python3 - <<'PY_RESULTS'
+        from pathlib import Path
+        import os, json
+        root = Path(os.environ['RUNNER_TEMP']) / 'verification-evidence'
+        root.mkdir(exist_ok=True)
+        steps = json.loads(os.environ['STEP_RESULTS'])
+        required = ['checkout', 'identity', 'links_checkout', 'pnpm', 'node', 'runner_identity', 'source_pre', 'links_contract', 'contract_fixtures', 'install', 'absence_pre', 'braces_patch', 'native', 'lint', 'typecheck', 'unit', 'claims_local', 'registry', 'links_shape', 'build', 'isr', 'chromium', 'e2e', 'absence_post', 'source_post']
+        results = {name: {'outcome': steps.get(name, {}).get('outcome', 'UNRUN'), 'conclusion': steps.get(name, {}).get('conclusion', 'UNRUN')} for name in required + ['audit_prod', 'audit_full']}
+        issues = [name + ':' + results[name]['outcome'] for name in required if results[name]['outcome'] != 'success']
+        audit_issues = []
+        audits = {}
+        known = 'GHSA-vfj7-8cjw-p6xm'
+        known_path = '.>eslint-config-next>@next/eslint-plugin-next>fast-glob>micromatch>braces'
+        for scope in ['audit_prod', 'audit_full']:
+            try:
+                raw = json.loads((root / (scope + '.json')).read_text())
+                code = int((root / (scope + '.exit-code')).read_text())
+                vuln = raw['metadata']['vulnerabilities']
+                advisory_values = list(raw['advisories'].values())
+                dangerous = [a for a in advisory_values if a['severity'] in ('high', 'critical')]
+                valid = raw.get('muted') == [] and code in (0, 1) and int(vuln['critical']) == 0 and int(vuln['high']) == len([a for a in dangerous if a['severity'] == 'high'])
+                if not valid:
+                    state = 'FAIL_UNKNOWN_OR_INCOMPLETE'
+                elif code == 0 and not dangerous:
+                    state = 'PASS_RAW_AUDIT'
+                elif scope == 'audit_full' and code == 1 and len(dangerous) == 1:
+                    advisory = dangerous[0]
+                    findings = advisory.get('findings', [])
+                    exact = advisory.get('github_advisory_id') == known and advisory.get('module_name') == 'braces' and advisory.get('severity') == 'high' and bool(findings)
+                    exact = exact and all(f.get('version') == '3.0.3' and bool(f.get('paths')) and set(f['paths']) == {known_path} for f in findings)
+                    state = 'FAIL_KNOWN_CONDITIONALLY_ACCEPTED' if exact else 'FAIL_OUTSIDE_ACCEPTED_RISK'
+                else:
+                    state = 'FAIL_OUTSIDE_ACCEPTED_RISK'
+                audits[scope] = {'raw_exit_code': code, 'result': state, 'vulnerabilities': vuln, 'muted': raw.get('muted'), 'high_critical_advisories': [a.get('github_advisory_id') for a in dangerous]}
+            except Exception as error:
+                audits[scope] = {'result': 'UNVERIFIED_AUDIT_ERROR', 'error': str(error)}
+            if audits[scope]['result'] not in ('PASS_RAW_AUDIT', 'FAIL_KNOWN_CONDITIONALLY_ACCEPTED'):
+                audit_issues.append(scope + ':' + audits[scope]['result'])
+        try:
+            unit = json.loads((root / 'unit-results.json').read_text())
+            unit_counts = {k: unit[k] for k in ['numTotalTests', 'numPassedTests', 'numFailedTests', 'numPendingTests', 'numTodoTests']}
+            if unit_counts['numTotalTests'] <= 0 or unit_counts['numPassedTests'] != unit_counts['numTotalTests'] or any(unit_counts[k] for k in ['numFailedTests', 'numPendingTests', 'numTodoTests']):
+                issues.append('unit:failed_or_skipped_cases')
+        except Exception as error:
+            unit_counts = {'error': str(error)}
+            issues.append('unit:missing_report')
+        try:
+            browser = json.loads(Path('playwright-report/results.json').read_text())
+            stats = browser['stats']
+            css_specs = []
+            def visit(suites):
+                for suite in suites:
+                    for spec in suite.get('specs', []):
+                        if spec.get('file', '').endswith('tailwind-migration.spec.ts'):
+                            css_specs.append(spec)
+                    visit(suite.get('suites', []))
+            visit(browser['suites'])
+            css_pass = len(css_specs) == 3 and all(spec.get('ok') is True and spec.get('tests') and all(test.get('status') == 'expected' and test.get('results') and all(run.get('status') == 'passed' for run in test['results']) for test in spec['tests']) for spec in css_specs)
+            if stats.get('expected', 0) <= 0 or any(stats.get(k, 0) for k in ['unexpected', 'flaky', 'skipped']) or not css_pass:
+                issues.append('e2e:failed_skipped_flaky_or_missing_css')
+            browser_results = {'stats': stats, 'css_cases': len(css_specs), 'css_pass': css_pass}
+        except Exception as error:
+            browser_results = {'error': str(error)}
+            issues.append('e2e:missing_report')
+        report = {'step_results': results, 'technical_checks': 'PASS' if not issues else 'FAIL_OR_UNRUN', 'blocking_issues': issues + audit_issues, 'audit_blocking_issues': audit_issues, 'audits': audits, 'unit': unit_counts, 'e2e_and_css': browser_results, 'provider_packaging_runtime': 'UNVERIFIED_SEPARATE_MANDATORY_GATE', 'production_authorized_by_this_run': False, 'known_risk_acceptance': 'conditional per parent transcript; raw audit failure retained'}
+        (root / 'verification-results.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps(report, indent=2))
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+            out.write('## Final verification results\n\nTechnical checks: **' + report['technical_checks'] + '**\n\n')
+            for scope, audit in audits.items():
+                out.write('- ' + scope + ': **' + audit['result'] + '**; raw exit=' + str(audit.get('raw_exit_code', 'UNVERIFIED')) + '\n')
+            out.write('\nProvider package/runtime: **UNVERIFIED — separate mandatory gate**. This run does not authorize production.\n')
+        PY_RESULTS
+    - name: Enforce artifact storage budget
+      id: artifact_budget
+      if: always()
+      run: |
+        python3 - <<'PY_BUDGET'
+        from pathlib import Path
+        import os
+        roots = [Path("playwright-report"), Path("test-results"),
+                 Path(os.environ["RUNNER_TEMP"]) / "verification-evidence",
+                 Path(os.environ["RUNNER_TEMP"]) / "links-static-manifest.json",
+                 Path(".next/BUILD_ID"), Path(".next/prerender-manifest.json")]
+        files = []
+        for root in roots:
+            if root.is_file():
+                files.append(root)
+            elif root.is_dir():
+                files.extend(path for path in root.rglob("*") if path.is_file())
+        total = sum(path.stat().st_size for path in files)
+        print(f"CI evidence: {len(files)} files, {total} bytes; limit 400 MiB")
+        if total > 400 * 1024 * 1024:
+            raise SystemExit("Evidence exceeds 400 MiB; upload refused")
+        with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+            output.write("within=true\n")
+        PY_BUDGET
+    - name: Upload normal CI evidence
+      if: ${{ always() && steps.artifact_budget.outputs.within == 'true' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: web-final-verification-${{ github.sha }}
+        path: |
+          ${{ runner.temp }}/verification-evidence/
+          playwright-report/
+          test-results/
+          ${{ runner.temp }}/links-static-manifest.json
+          .next/BUILD_ID
+          .next/prerender-manifest.json
+        retention-days: 3
+        if-no-files-found: error
+      id: upload
+    - name: Final gate — raw audit failures remain failures
+      id: final_gate
+      if: ${{ always() }}
+      shell: bash
+      run: |
+        python3 - <<'PY_GATE'
+        from pathlib import Path
+        import json, os
+        p = Path(os.environ['RUNNER_TEMP']) / 'verification-evidence' / 'verification-results.json'
+        r = json.loads(p.read_text())
+        if r['technical_checks'] != 'PASS':
+            raise SystemExit('FAIL_OR_UNRUN: see independent outcomes in verification-results.json')
+        if r['audit_blocking_issues']:
+            raise SystemExit('AUDIT_OUTSIDE_ACCEPTED_RISK_OR_UNVERIFIED: see raw audits and verification-results.json')
+        if any(a.get('raw_exit_code') != 0 for a in r['audits'].values()):
+            raise SystemExit('AUDIT_FAIL_RETAINED: conditional acceptance is recorded separately; no audit PASS or production approval')
+        print('Technical and raw audit gates PASS; provider packaging/runtime still separately required')
+        PY_GATE

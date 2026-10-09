@@ -8,7 +8,6 @@
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
     "build": "pnpm verify:claims && pnpm verify:claims:local && next build",
-    "build:netlify": "AWS_LAMBDA_JS_RUNTIME=nodejs24.x node .github/ci/netlify/node_modules/netlify-cli/bin/run.js build --offline --context production",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -18,8 +17,6 @@
     "verify:claims": "node --import tsx scripts/verify-public-registry.ts",
     "verify:links": "tsx scripts/verify-public-links.ts",
     "verify:claims:local": "node scripts/verify-claims-local.mjs",
-    "deploy": "AWS_LAMBDA_JS_RUNTIME=nodejs24.x node .github/ci/netlify/node_modules/netlify-cli/bin/run.js deploy --prod --context production --site 65a77e28-286e-415c-a0d1-fab7370a3c57",
-    "deploy:preview": "AWS_LAMBDA_JS_RUNTIME=nodejs24.x node .github/ci/netlify/node_modules/netlify-cli/bin/run.js deploy --context deploy-preview --site 322c6a44-e788-49e4-aa12-a397e0f85d43",
     "verify:render-mode": "node scripts/verify-render-mode.mjs"
   },
   "dependencies": {
@@ -28,7 +25,7 @@
     "@vercel/analytics": "^2.0.1",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.468.0",
-    "next": "15.5.24",
+    "next": "15.5.27",
     "next-intl": "^4.11.1",
     "pg": "^8.23.0",
     "react": "^19.0.0",
@@ -37,9 +34,9 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@netlify/plugin-nextjs": "5.15.13",
+    "@netlify/plugin-nextjs": "5.16.2",
     "@playwright/test": "^1.62.1",
-    "@tailwindcss/typography": "^0.5.15",
+    "@tailwindcss/typography": "0.5.20",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^22.10.5",
@@ -48,19 +45,20 @@
     "@types/react-dom": "^19.0.2",
     "@types/three": "0.183.1",
     "@vitejs/plugin-react": "^6.0.5",
-    "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
-    "eslint-config-next": "^15.1.4",
+    "eslint-config-next": "15.5.27",
     "jsdom": "^30.0.1",
     "postcss": "^8.5.26",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "4.3.3",
     "tsx": "^4.23.12",
     "typescript": "^5.7.2",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "@tailwindcss/postcss": "4.3.3"
   },
   "pnpm": {
     "overrides": {
-      "sharp": "0.35.4",
+      "sharp": "0.35.5",
+      "source-map-js": "1.2.2",
       "postcss": "^8.5.26",
       "nanoid": "^3.3.18",
       "@tootallnate/once@2.0.0": "2.0.1",

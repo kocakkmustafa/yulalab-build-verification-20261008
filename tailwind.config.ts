@@ -5,6 +5,8 @@ const config: Config = {
   darkMode: "class",
   content: ["./src/**/*.{ts,tsx,mdx}"],
   theme: {
+    // Preserve the existing pixel breakpoints independently of root font size.
+    screens: { sm: "640px", md: "768px", lg: "1024px", xl: "1280px", "2xl": "1536px" },
     container: {
       center: true,
       padding: { DEFAULT: "1.5rem", lg: "2.5rem" },
@@ -12,6 +14,9 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Existing status colors keep their v3 sRGB values during migration.
+        amber: { 300: "#fcd34d", 400: "#fbbf24" },
+        emerald: { 300: "#6ee7b7", 400: "#34d399" },
         ink: {
           900: "#0A0A0B",
           850: "#0E0E10",

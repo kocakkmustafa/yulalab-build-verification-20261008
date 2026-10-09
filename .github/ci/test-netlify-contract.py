@@ -60,6 +60,8 @@ publish = ".next"
 NODE_VERSION = "26.9.0"
 PNPM_VERSION = "10.33.0"
 [[plugins]]
+package = "./.github/netlify/artifact-proof"
+[[plugins]]
 package = "@netlify/plugin-nextjs"
 [[headers]]
 for = "/portfolio-registry.json"
@@ -68,7 +70,7 @@ Access-Control-Allow-Origin = "https://links.yulalab.com"
 Access-Control-Allow-Methods = "GET"
 Cache-Control = "public, max-age=300, must-revalidate"
 ''')
-        self.write_json("package.json", {"devDependencies": {"@netlify/plugin-nextjs": "5.15.13"}})
+        self.write_json("package.json", {"devDependencies": {"@netlify/plugin-nextjs": "5.16.2"}})
         self.write("pnpm-lock.yaml", "fixture lock\n")
         self.write(".next/BUILD_ID", BUILD_ID)
         self.write(".next/prerender-manifest.json", "{}")
@@ -78,7 +80,7 @@ Cache-Control = "public, max-age=300, must-revalidate"
         self.zip_relative = f".netlify/functions/{HANDLER}.zip"
         self.write(self.zip_relative, b"")
         self.make_zip()
-        self.functions = {"functions": [{"name": HANDLER, "generator": "@netlify/plugin-nextjs@5.15.13",
+        self.functions = {"functions": [{"name": HANDLER, "generator": "@netlify/plugin-nextjs@5.16.2",
                                         "runtimeVersion": "nodejs24.x", "path": str(self.root / self.zip_relative)}],
                           "system": {"arch": "fixture", "platform": "fixture"}}
         self.write_json(".netlify/functions/manifest.json", self.functions)
@@ -86,7 +88,7 @@ Cache-Control = "public, max-age=300, must-revalidate"
                      "routes": [{"function": MIDDLEWARE,
                                  "pattern": r"^(?:/(_next/data/[^/]{1,}))?(?:/((?!api|_next|_vercel|.*\..*).*))" r"(\.json|\.rsc|\.segments/.+\.segment\.rsc)?[/#\?]?$",
                                  "excluded_patterns": []}], "post_cache_routes": [],
-                     "function_config": {MIDDLEWARE: {"name": "Next.js Middleware Handler", "generator": "@netlify/plugin-nextjs@5.15.13"}}}
+                     "function_config": {MIDDLEWARE: {"name": "Next.js Middleware Handler", "generator": "@netlify/plugin-nextjs@5.16.2"}}}
         self.write_json(f"{EDGE}/manifest.json", self.edge)
 
     def write(self, relative, contents):
@@ -262,6 +264,57 @@ Cache-Control = "public, max-age=300, must-revalidate"
                 path.write_text(contents)
                 self.rejected()
                 path.write_bytes(original)
+
+    def test_provider_output_directories_preserve_all_artifact_checks(self):
+        # Buildbot packages Functions outside the checkout. Use an owned
+        # sibling fixture without relaxing the exact ZIP/manifest relationship.
+        external = tempfile.TemporaryDirectory(prefix="yula-provider-outputs-")
+        self.addCleanup(external.cleanup)
+        outputs = Path(external.name).resolve()
+        functions = outputs / "zisi"
+        edge = outputs / "edge"
+        (self.root / ".netlify/functions").rename(functions)
+        (self.root / EDGE).rename(edge)
+        manifest = {**self.functions, "functions": [{**self.functions["functions"][0],
+                    "path": str(functions / f"{HANDLER}.zip")} ]}
+        (functions / "manifest.json").write_text(json.dumps(manifest))
+        result = contract.validate(self.root, functions_dist=functions, edge_functions_dist=edge)
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["scope"], "provider build artifact; no deployment or runtime execution")
+        self.assertEqual(result["buildId"], BUILD_ID)
+        self.assertEqual(len(result["files"]), 9)
+        self.assertIn(str(functions / f"{HANDLER}.zip"), [file["path"] for file in result["files"]])
+        for change in [{"path": str(self.root / self.zip_relative)}, {"runtimeVersion": "nodejs26.x"},
+                       {"generator": "other"}]:
+            with self.subTest(change=change):
+                mutated = {**manifest, "functions": [{**manifest["functions"][0], **change}]}
+                (functions / "manifest.json").write_text(json.dumps(mutated))
+                with self.assertRaises(ERRORS):
+                    contract.validate(self.root, functions_dist=functions, edge_functions_dist=edge)
+        (functions / "manifest.json").write_text(json.dumps(manifest))
+        asset = edge / self.edge["bundles"][0]["asset"]
+        asset.write_bytes(b"corrupted")
+        with self.assertRaisesRegex(contract.ContractError, "edge asset SHA-256 mismatch"):
+            contract.validate(self.root, functions_dist=functions, edge_functions_dist=edge)
+
+    def test_provider_output_roots_fail_closed(self):
+        functions = self.root / ".netlify/functions"
+        edge = self.root / EDGE
+        cases = [(functions, None), (None, edge), ("relative", edge),
+                 (functions, "relative"), (functions / ".." / "functions", edge),
+                 (self.root / "missing", edge), (Path(functions.anchor), edge)]
+        for function_root, edge_root in cases:
+            with self.subTest(functions=function_root, edge=edge_root):
+                with self.assertRaises(ERRORS):
+                    contract.validate(self.root, functions_dist=function_root, edge_functions_dist=edge_root)
+        link = self.root / "function-output-link"
+        link.symlink_to(functions, target_is_directory=True)
+        with self.assertRaisesRegex(contract.ContractError, "symlink output directory"):
+            contract.validate(self.root, functions_dist=link, edge_functions_dist=edge)
+        parent_link = self.root / "netlify-output-link"
+        parent_link.symlink_to(self.root / ".netlify", target_is_directory=True)
+        with self.assertRaisesRegex(contract.ContractError, "symlink output directory"):
+            contract.validate(self.root, functions_dist=parent_link / "functions", edge_functions_dist=edge)
 
 
 if __name__ == "__main__":

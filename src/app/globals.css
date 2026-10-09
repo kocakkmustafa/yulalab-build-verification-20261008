@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "../../styles/tailwind-legacy-base.css";
+@import "tailwindcss/utilities.css" source(none);
+
+@config "../../tailwind.config.ts";
+/* These owned compatibility classes are defined before generated utilities. */
+@source not inline("space-y-{1,2,3,4,5,6,8,9,10} transition-colors bg-gradient-to-{t,tr}");
+/* Retain the existing hover behavior, including group hover on touch devices. */
+@custom-variant hover (&:hover);
 
 :root {
   --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
